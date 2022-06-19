@@ -22,33 +22,32 @@ impl<'a> Parser<'a> {
         let input = self.input;
 
         let (name, input) = parse_and_skip(input, name).unwrap();
-        let (_, input)  = parse_and_skip(input, space).unwrap();
-        let (_, input)  = parse_and_skip(input, assign).unwrap();
-        let (_, input)  = parse_and_skip(input, space).unwrap();
+        let (_, input) = parse_and_skip(input, space).unwrap();
+        let (_, input) = parse_and_skip(input, assign).unwrap();
+        let (_, input) = parse_and_skip(input, space).unwrap();
 
         let (rule_piece, input) = parse_and_skip(input, rule_piece).unwrap();
-        let mut rule = Rule {
-            name: name,
-            content: vec![(rule_piece)]
-        };
+        // let mut rule = Rule {
+        //     name: name,
+        //     content: vec![(rule_piece)],
+        // };
 
-        loop {
-            (_, input) = match parse_and_skip(input, space) {
-                Some((space, input)) => (space, input),
-                None => return Ok(rule),
-            }
-        }
+        // loop {
+        //     (_, input) = match parse_and_skip(input, space) {
+        //         Some((space, input)) => (space, input),
+        //         None => return Ok(rule),
+        //     }
+        // }
 
         todo!();
     }
-
 }
 
 pub fn rule_piece<'b>(input: &'b str) -> Option<&'b str> {
     if let Some(single) = single_quoted(input) {
         return Some(single);
     }
-    
+
     if let Some(double) = double_quoted(input) {
         return Some(double);
     }
@@ -66,14 +65,14 @@ pub fn name<'b>(input: &'b str) -> Option<&'b str> {
     }
     // ifound MONGUS suddenbtly i found amongus aming us amongus suddently i found amongus
 
-    let line = skip(input,"<")?;
+    let line = skip(input, "<")?;
     let end = line.find('>')? + 2;
     Some(&input[..end])
 }
 
 pub fn comment<'b>(input: &'b str) -> Option<&'b str> {
     if !input.starts_with(';') {
-        return None
+        return None;
     }
 
     Some(start_match(input, |c| !['\n', '\r'].contains(&c))?)
@@ -141,7 +140,7 @@ pub fn skip<'b>(line: &'b str, start: &str) -> Option<&'b str> {
 
 pub fn parse_and_skip<'b, ParseFunc>(input: &'b str, parse: ParseFunc) -> Option<(&'b str, &'b str)>
 where
-    ParseFunc: Fn(&'b str) -> Option<&'b str>
+    ParseFunc: Fn(&'b str) -> Option<&'b str>,
 {
     let parsed = parse(input)?;
     let skipped = skip(input, parsed)?;
@@ -151,42 +150,50 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn quotes_and_spaces() {
-        let input = "'hamburger'  \t \"double quotes\" 'single_quotes'";
-        
-        assert_eq!(Parser::double_quoted(input), None);
 
-        let (pat, input) = Parser::parse_and_skip(input, Parser::single_quoted).unwrap();
-        assert_eq!(pat, "'hamburger'");
-        
-        let (pat, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
-        assert_eq!(pat, "  \t ");
-    }
+    // #[test]
+    // fn quotes_and_spaces() {
+    //     let input = "'hamburger'  \t \"double quotes\" 'single_quotes'";
 
-    #[test]
-    fn name_and_arrow_and_comment() {
-        let input = "<rule> -> <burger> ; hamburger mobile!";
+    //     assert_eq!(Parser::double_quoted(input), None);
 
-        let (ident, input) = Parser::parse_and_skip(input, Parser::name).unwrap();
-        assert_eq!(ident, "<rule>");
-        
-        let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
-        
-        let (arrow, input) = Parser::parse_and_skip(input, Parser::assign).unwrap();
-        assert_eq!(arrow, "->");
+    //     let (pat, input) = Parser::parse_and_skip(input, Parser::single_quoted).unwrap();
+    //     assert_eq!(pat, "'hamburger'");
 
-        let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
-        
-        let (ident, input) = Parser::parse_and_skip(input, Parser::name).unwrap();
-        assert_eq!(ident, "<burger>");
-        
-        let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
-        
-        let (comment, input) = Parser::parse_and_skip(input, Parser::comment).unwrap();
-        assert_eq!(comment, "; hamburger mobile!")
+    //     let (pat, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
+    //     assert_eq!(pat, "  \t ");
+    // }
 
-    }
+    // #[test]
+    // fn name_and_arrow_and_comment() {
+    //     let input = "<rule> -> <burger> ; hamburger mobile!";
+
+    //     let (ident, input) = Parser::parse_and_skip(input, Parser::name).unwrap();
+    //     assert_eq!(ident, "<rule>");
+
+    //     let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
+
+    //     let (arrow, input) = Parser::parse_and_skip(input, Parser::assign).unwrap();
+    //     assert_eq!(arrow, "->");
+
+    //     let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
+
+    //     let (ident, input) = Parser::parse_and_skip(input, Parser::name).unwrap();
+    //     assert_eq!(ident, "<burger>");
+
+    //     let (_, input) = Parser::parse_and_skip(input, Parser::space).unwrap();
+
+    //     let (comment, input) = Parser::parse_and_skip(input, Parser::comment).unwrap();
+    //     assert_eq!(comment, "; hamburger mobile!")
+    // }
+
+    // #[test]
+    // fn quotes_and_separator() {
+    //     let input = "'burger' | \"ciao\"";
+    //     let quote = super::SingleQuote::parse(input).unwrap();
+    //     assert_eq!(quote, super::SingleQuote("'burger'"));
+
+    // }
 }
 
 #[derive(Clone, Debug)]
@@ -197,7 +204,7 @@ enum ParseError {
 impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Expected(exp, got) => write!(f, "expected {}, got {}", exp, got),
+            Self::Expected(exp, got) => write!(f, "expected {}, got {}", exp, got),
         }
     }
 }

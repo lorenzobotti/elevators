@@ -1,4 +1,5 @@
 mod bnf;
+mod nodes;
 mod rule;
 
 fn main() {
