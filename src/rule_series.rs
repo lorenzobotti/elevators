@@ -10,34 +10,32 @@ impl<'a> Node<'a> for RuleSeries<'a> {
         let starting_len = input.bytes().len();
         let length_left = || input.bytes().len() - starting_len;
 
-        let (first_piece, input) = RulePiece::parse_and_skip(input)?;
+        let (first_piece, mut trimmed) = RulePiece::parse_and_skip(input)?;
         let mut pieces = vec![first_piece];
         
+        'parse_loop:
         loop {
             dbg!(&pieces);
-            dbg!(input);
 
-            let input = match surrounded_by!(Separator, Space, input) {
-                Some((sep, input)) => {
-                    dbg!(sep);
-                    input
-                },
-                None => {
-                    dbg!("can't parse space");
-                    return Some((Self(pieces), length_left()))
-                },
-            };
-
-            let (piece, input) = match surrounded_by!(RulePiece, Space, input) {
+            let (piece, inp) = match surrounded_by!(RulePiece, Space, trimmed) {
                 Some(res) => res,
-                None => {
-                    panic!("expected rule piece, found {}", &input[..10]);
-                }
+                None => { break 'parse_loop; }
             };
 
+            dbg!("parsed successfully");
+            
+            trimmed = inp;
+            
+            dbg!(&piece);
+            dbg!(trimmed);
             pieces.push(piece);
-            dbg!(&pieces);
+            // dbg!(&pieces);
         }
+
+        dbg!("returning some");
+
+        let diff = starting_len - trimmed.bytes().len();
+        Some((Self(pieces), diff))
     }
 }
 
@@ -48,12 +46,12 @@ mod tests {
 
     #[test]
     fn rule_series() {
-        let input = r#"'hamburger' <hamburger> "automobile" <johnny>"#;
+        let input = r#"'hamburger' <hamburger> "automobile" <johnny_moment>"#;
         let expected = RuleSeries(vec![
             RulePiece::Single(SingleQuote("'hamburger'")),
             RulePiece::Ident(Identifier("<hamburger>")),
-            RulePiece::Double(DoubleQuote("\"hamburger\"")),
-            RulePiece::Ident(Identifier("<johnny>")),
+            RulePiece::Double(DoubleQuote("\"automobile\"")),
+            RulePiece::Ident(Identifier("<johnny_moment>")),
         ]);
 
         let (got, _) = RuleSeries::parse_len(input).unwrap();
