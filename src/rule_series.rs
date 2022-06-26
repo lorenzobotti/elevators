@@ -8,7 +8,6 @@ pub struct RuleSeries<'a>(Vec<RulePiece<'a>>);
 impl<'a> Node<'a> for RuleSeries<'a> {
     fn parse_len(input: &'a str) -> Option<(Self, usize)> {
         let starting_len = input.bytes().len();
-        let length_left = || input.bytes().len() - starting_len;
 
         let (first_piece, mut trimmed) = RulePiece::parse_and_skip(input)?;
         let mut pieces = vec![first_piece];

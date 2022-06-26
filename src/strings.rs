@@ -29,8 +29,7 @@ pub fn trim_end<'a>(input: &'a str, end: &'a str) -> &'a str {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
+    #[test]
     fn take_start() {
         let input = "!= burger";
         let expected = "!=";

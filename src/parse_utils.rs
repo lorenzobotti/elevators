@@ -12,9 +12,6 @@ macro_rules! surrounded_by {
             None => {}
         }
 
-        // dbg!("after parsing first space");
-        // dbg!(trimmed);
-        
         let trimmed = match <$token>::parse_and_skip(trimmed) {
             Some((tok, left)) => {
                 token = Some(tok);
@@ -23,19 +20,11 @@ macro_rules! surrounded_by {
             None => trimmed,
         };
         
-        // dbg!("after parsing content");
-        // dbg!(&parsed);
-        // dbg!(trimmed);
-        
         let trimmed = match <$surrounded>::parse_and_skip(trimmed) {
             Some((_, inp)) => inp,
             None => trimmed,
         };
 
-        // dbg!("after parsing ending space");
-        // dbg!(trimmed);
-
-        let diff = $input.bytes().len() - trimmed.bytes().len();
         match token {
             Some(tok) => Some((tok, trimmed)),
             None => None,

@@ -1,7 +1,6 @@
-use trait_enum::Deref;
-
 use crate::tokens::*;
 
+#[allow(dead_code)]
 pub enum Token<'a> {
     Assign(Assign<'a>),
     Separator(Separator<'a>),
@@ -10,7 +9,3 @@ pub enum Token<'a> {
     Identifier(Identifier<'a>),
     Space(Space<'a>),
 }
-
-// impl<'a> Deref for Token<'a> {
-//     type Target = dyn Node<'a>;
-// }
