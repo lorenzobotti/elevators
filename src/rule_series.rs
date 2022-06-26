@@ -3,32 +3,34 @@ use crate::surrounded_by;
 use crate::tokens::*;
 
 #[derive(Debug, PartialEq)]
-pub struct RuleSeries<'a>(Vec<RulePiece<'a>>);
+pub struct RuleSeries<'a>(pub Vec<RulePiece<'a>>);
 
 impl<'a> Node<'a> for RuleSeries<'a> {
     fn parse_len(input: &'a str) -> Option<(Self, usize)> {
         let starting_len = input.bytes().len();
 
-        let (first_piece, mut trimmed) = RulePiece::parse_and_skip(input)?;
+        let (first_piece, trimmed) = RulePiece::parse_and_skip(input)?;
         let mut pieces = vec![first_piece];
+
+        let mut trimmed = trimmed;
         
         'parse_loop:
         loop {
-            dbg!(&pieces);
+            dbg!(trimmed);
 
             let (piece, inp) = match surrounded_by!(RulePiece, Space, trimmed) {
                 Some(res) => res,
                 None => { break 'parse_loop; }
             };
 
-            dbg!("parsed successfully");
-            
-            trimmed = inp;
-            
-            dbg!(&piece);
-            dbg!(trimmed);
+            assert!(inp.bytes().len() < trimmed.bytes().len());
+
             pieces.push(piece);
-            // dbg!(&pieces);
+            
+            let trimmed_before = trimmed;
+            trimmed = inp;
+
+            assert!(trimmed_before != trimmed);
         }
 
         dbg!("returning some");
