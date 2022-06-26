@@ -37,7 +37,7 @@ mod tests {
     
     #[test]
     fn rule_ors() {
-        let input = r#"<hamburger_mobile> <space> <jimmy> | "mamma mia" '"' "burger" <moment>"#;
+        let input = r#"<hamburger_mobile> <space> <jimmy> | "mamma mia" '"' "burger" <moment> | "hi""#;
         let expected = RuleOrs(vec![
             RuleSeries(vec![
                 RulePiece::Ident(Identifier("<hamburger_mobile>")),
@@ -49,6 +49,9 @@ mod tests {
                 RulePiece::Single(SingleQuote("'\"'")),
                 RulePiece::Double(DoubleQuote("\"burger\"")),
                 RulePiece::Ident(Identifier("<moment>")),
+            ]),
+            RuleSeries(vec![
+                RulePiece::Double(DoubleQuote("\"hi\"")),
             ]),
         ]);
 
