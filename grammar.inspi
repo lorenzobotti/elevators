@@ -5,7 +5,8 @@
 <word> -> <letter>*
 <comment> -> ';' <sentence> '\n'
 <sentence> -> <word> | <word> <sentence> | <space> <word> <sentence>
-<rule_spec> -> <rule_piece> | <rule_piece> <space> '|' <space> <rule_spec>
+<rule_spec> -> <rule_pieces> | <rule_pieces> <space> '|' <space> <rule_spec>
+<rule_pieces> -> <rule_piece> | <rule_piece> <space> <rule_pieces>
 <rule_piece> -> <double_quoted> | <single_quoted> | <identifier>
 <double_quoted> -> '"' <word> '"'
 <single_quoted> -> "'" <word> "'"
