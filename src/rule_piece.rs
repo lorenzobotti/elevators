@@ -21,7 +21,7 @@ impl<'a> Node<'a> for RulePiece<'a> {
             // dbg!("it's an identifier");
             return Some((Self::Ident(parsed), len));
         }
-        
+
         // dbg!("it's nothing at all");
         // dbg!(input);
         None

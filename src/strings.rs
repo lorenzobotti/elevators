@@ -3,21 +3,16 @@
 /// of a string that matches a pattern
 ///
 macro_rules! take_start {
-    ($input: expr, $pattern: expr) => {
-        {
-            let initial_len = $input.bytes().len();
-            let trimmed: &str = $input.trim_start_matches($pattern);
-            let diff = initial_len - trimmed.bytes().len();
+    ($input: expr, $pattern: expr) => {{
+        let initial_len = $input.bytes().len();
+        let trimmed: &str = $input.trim_start_matches($pattern);
+        let diff = initial_len - trimmed.bytes().len();
 
-            match diff {
-                0 => None,
-                _ => Some(crate::strings::trim_end(
-                    $input,
-                    trimmed,
-                )),
-            }
+        match diff {
+            0 => None,
+            _ => Some(crate::strings::trim_end($input, trimmed)),
         }
-    };
+    }};
 }
 
 pub fn trim_end<'a>(input: &'a str, end: &'a str) -> &'a str {

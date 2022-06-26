@@ -1,5 +1,5 @@
-use crate::{tokens::*, surrounded_by};
 use crate::rule_series::RuleSeries;
+use crate::{surrounded_by, tokens::*};
 
 #[derive(Debug, PartialEq)]
 pub struct RuleOrs<'a>(pub Vec<RuleSeries<'a>>);
@@ -18,12 +18,12 @@ impl<'a> Node<'a> for RuleOrs<'a> {
             };
 
             trimmed = left;
-            
+
             let (other_series, left) = match RuleSeries::parse_and_skip(trimmed) {
                 Some((series, left)) => (series, left),
                 None => panic!("expected rule series after separator"),
             };
-            
+
             trimmed = left;
             series.push(other_series);
         }
@@ -32,12 +32,13 @@ impl<'a> Node<'a> for RuleOrs<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::rule_piece::RulePiece;
     use super::*;
-    
+    use crate::rule_piece::RulePiece;
+
     #[test]
     fn rule_ors() {
-        let input = r#"<hamburger_mobile> <space> <jimmy> | "mamma mia" '"' "burger" <moment> | "hi""#;
+        let input =
+            r#"<hamburger_mobile> <space> <jimmy> | "mamma mia" '"' "burger" <moment> | "hi""#;
         let expected = RuleOrs(vec![
             RuleSeries(vec![
                 RulePiece::Ident(Identifier("<hamburger_mobile>")),
@@ -50,9 +51,7 @@ mod tests {
                 RulePiece::Double(DoubleQuote("\"burger\"")),
                 RulePiece::Ident(Identifier("<moment>")),
             ]),
-            RuleSeries(vec![
-                RulePiece::Double(DoubleQuote("\"hi\"")),
-            ]),
+            RuleSeries(vec![RulePiece::Double(DoubleQuote("\"hi\""))]),
         ]);
 
         let (got, _) = RuleOrs::parse_len(input).unwrap();

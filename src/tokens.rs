@@ -31,13 +31,13 @@ macro_rules! delimited {
         impl<'a> Node<'a> for $type {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
                 let starting_size = input.bytes().len();
-                
+
                 take_start!(input, $start)?;
                 let trimmed = input.trim_start_matches($start);
 
                 let content = take_start!(trimmed, $matcher)?;
                 let trimmed = trimmed.trim_start_matches(content);
-                
+
                 take_start!(trimmed, $end)?;
                 let trimmed = trimmed.trim_start_matches($end);
 
@@ -58,25 +58,19 @@ literal!(Separator<'a>, SEPARATOR);
 
 #[derive(PartialEq, Debug)]
 pub struct SingleQuote<'a>(pub &'a str);
-delimited!(
-    SingleQuote<'a>,
-    SINGLE_QUOTE,
-    SINGLE_QUOTE,
-    |c| c != SINGLE_QUOTE
-);
+delimited!(SingleQuote<'a>, SINGLE_QUOTE, SINGLE_QUOTE, |c| c
+    != SINGLE_QUOTE);
 
 #[derive(PartialEq, Debug)]
 pub struct DoubleQuote<'a>(pub &'a str);
-delimited!(
-    DoubleQuote<'a>,
-    DOUBLE_QUOTE,
-    DOUBLE_QUOTE,
-    |c| c != DOUBLE_QUOTE
-);
+delimited!(DoubleQuote<'a>, DOUBLE_QUOTE, DOUBLE_QUOTE, |c| c
+    != DOUBLE_QUOTE);
 
 #[derive(PartialEq, Debug)]
 pub struct Identifier<'a>(pub &'a str);
-delimited!(Identifier<'a>, START_IDENT, STOP_IDENT, |c: char| c.is_alphabetic() || c == '_');
+delimited!(Identifier<'a>, START_IDENT, STOP_IDENT, |c: char| c
+    .is_alphabetic()
+    || c == '_');
 
 #[derive(PartialEq, Debug)]
 pub struct Space<'a>(pub &'a str);
@@ -93,7 +87,7 @@ mod tests {
 
         assert_eq!(took, SingleQuote(r#"'hamburger mobile'"#));
     }
-    
+
     #[test]
     fn identifier() {
         let input = "<johnny_boy>";

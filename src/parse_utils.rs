@@ -4,7 +4,7 @@ use crate::tokens::*;
 #[macro_export]
 /// Parses $token, and tries to parse leading and trailing
 /// $surrounded. $token and $surrounded are Node<'a>, $input
-/// is a &str or String 
+/// is a &str or String
 macro_rules! surrounded_by {
     ($token: ty, $surrounded: ty, $input: ident) => {{
         // we can't early return from a macro, so we set this
@@ -14,7 +14,7 @@ macro_rules! surrounded_by {
 
         let mut trimmed = $input;
         match <$surrounded>::parse_and_skip($input) {
-            Some((_, inp)) => {trimmed = inp},
+            Some((_, inp)) => trimmed = inp,
             None => {}
         }
 
@@ -22,10 +22,10 @@ macro_rules! surrounded_by {
             Some((tok, left)) => {
                 token = Some(tok);
                 left
-            },
+            }
             None => trimmed,
         };
-        
+
         let trimmed = match <$surrounded>::parse_and_skip(trimmed) {
             Some((_, inp)) => inp,
             None => trimmed,

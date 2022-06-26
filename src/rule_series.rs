@@ -13,20 +13,21 @@ impl<'a> Node<'a> for RuleSeries<'a> {
         let mut pieces = vec![first_piece];
 
         let mut trimmed = trimmed;
-        
-        'parse_loop:
-        loop {
+
+        'parse_loop: loop {
             dbg!(trimmed);
 
             let (piece, inp) = match surrounded_by!(RulePiece, Space, trimmed) {
                 Some(res) => res,
-                None => { break 'parse_loop; }
+                None => {
+                    break 'parse_loop;
+                }
             };
 
             assert!(inp.bytes().len() < trimmed.bytes().len());
 
             pieces.push(piece);
-            
+
             let trimmed_before = trimmed;
             trimmed = inp;
 
@@ -42,8 +43,8 @@ impl<'a> Node<'a> for RuleSeries<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::tokens::*;
     use super::*;
+    use crate::tokens::*;
 
     #[test]
     fn rule_series() {
@@ -57,7 +58,5 @@ mod tests {
 
         let (got, _) = RuleSeries::parse_len(input).unwrap();
         assert_eq!(expected, got);
-
     }
-
 }
