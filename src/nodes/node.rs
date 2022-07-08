@@ -104,6 +104,13 @@ impl<'g, 'i> Node<'g, 'i> {
         piece: &RulePiece<'g>,
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
+        let name = match piece {
+            RulePiece::Literal(lit) => lit,
+            RulePiece::Rule(r) => dbg!(gram.get(*r).unwrap().name),
+        };
+
+
+
         match piece {
             RulePiece::Literal(matcher) => {
                 let beginning = Self::match_str(input, matcher).ok_or(ParseError::Expected {
@@ -132,7 +139,11 @@ impl<'g, 'i> Node<'g, 'i> {
     }
 
     fn match_str(input: &'i str, matcher: &'g str) -> Option<&'i str> {
-        Some(take_start!(input, matcher)?)
+        if input.starts_with(matcher) {
+            Some(&input[..matcher.bytes().len()])
+        } else {
+            None
+        }
     }
 }
 

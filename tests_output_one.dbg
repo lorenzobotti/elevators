@@ -1,6 +1,0 @@
-<object>: <subject>;
-<noun>: "dog" | "cat" | "automobile" | "man";
-<verb>: "eats" | "wants" | "gives";
-<subject>: <article> <space> <noun>;
-<article>: "the" | "a" | "an";
-<sentence>: <subject> <space> <verb> <space> <object>;
