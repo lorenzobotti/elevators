@@ -1,11 +1,13 @@
 use serde::Serialize;
 
+use super::error::ParseError;
 use crate::rules::grammar::Grammar;
 use crate::rules::rule::Rule;
-use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RuleList;
+use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
 use crate::take_start;
+use crate::utils::take_n;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub struct Node<'grammar, 'input> {
@@ -19,27 +21,41 @@ pub enum NodeContent<'grammar, 'input> {
     Cons(Vec<Node<'grammar, 'input>>),
 }
 
-impl<'grammar, 'input> Node<'grammar, 'input> {
-    pub fn from_grammar(gram: &'grammar Grammar<'grammar>, input: &'input str) -> Option<(Self, usize)> {
-        Self::from_rule(gram, gram.main()?, input)
-    }
-    
-    pub fn from_rule(gram: &'grammar Grammar<'grammar>, rule: &Rule<'grammar>, input: &'input str) -> Option<(Self, usize)> {
-        let (mut node, len) = Self::from_rule_ors(gram, &rule.rule, input)?;
-        node.name = Some(rule.name);
-        
-        Some((node, len))
+impl<'g, 'i> Node<'g, 'i> {
+    pub fn from_grammar(
+        gram: &'g Grammar<'g>,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
+        Self::from_rule(gram, gram.main().unwrap(), input)
     }
 
-    fn from_rule_ors(gram: &'grammar Grammar<'grammar>, ors: &RuleOrs<'grammar>, input: &'input str) -> Option<(Self, usize)> {
+    pub fn from_rule(
+        gram: &'g Grammar<'g>,
+        rule: &Rule<'g>,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
+        let (mut node, len) = Self::from_rule_ors(gram, &rule.rule, rule.name, input)?;
+        node.name = Some(rule.name);
+
+        Ok((node, len))
+    }
+
+    fn from_rule_ors(
+        gram: &'g Grammar<'g>,
+        ors: &RuleOrs<'g>,
+        name: &'g str,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
         let mut longest: Option<(Self, usize)> = None;
 
-        'or_loop:
-        for or in &ors.0 {
+        'or_loop: for or in &ors.0 {
             let (node, len) = match Self::from_rule_list(gram, or, input) {
-                Some(parsed) => parsed,
-                None => continue 'or_loop,
-            };  
+                Ok(parsed) => parsed,
+                Err(error) => match &ors.0.len() {
+                    0 => return Err(error),
+                    _ => continue 'or_loop,
+                },
+            };
 
             if let Some((_, longest_until_now)) = longest {
                 if len > longest_until_now {
@@ -50,10 +66,18 @@ impl<'grammar, 'input> Node<'grammar, 'input> {
             }
         }
 
-        longest
+        longest.ok_or(ParseError::Expected {
+            parsing: name,
+            expected: name,
+            got: take_n(input, 20),
+        })
     }
 
-    fn from_rule_list(gram: &'grammar Grammar<'grammar>, list: &RuleList<'grammar>, input: &'input str) -> Option<(Self, usize)> {
+    fn from_rule_list(
+        gram: &'g Grammar<'g>,
+        list: &RuleList<'g>,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
         let mut rest = input;
         let mut nodes = Vec::with_capacity(list.0.len());
 
@@ -66,55 +90,96 @@ impl<'grammar, 'input> Node<'grammar, 'input> {
 
         let diff = input.bytes().len() - rest.bytes().len();
 
-        Some((Self{
-            name: None,
-            content: NodeContent::Cons(nodes),
-        }, diff))
+        Ok((
+            Self {
+                name: None,
+                content: NodeContent::Cons(nodes),
+            },
+            diff,
+        ))
     }
 
-    fn from_rule_piece(gram: &'grammar Grammar<'grammar>, piece: &RulePiece<'grammar>, input: &'input str) -> Option<(Self, usize)> {
+    fn from_rule_piece(
+        gram: &'g Grammar<'g>,
+        piece: &RulePiece<'g>,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
         match piece {
             RulePiece::Literal(matcher) => {
-                let beginning = Self::match_str(input, matcher)?;
-                let len = beginning.bytes().len();
+                let beginning = Self::match_str(input, matcher).ok_or(ParseError::Expected {
+                    parsing: "terminal",
+                    expected: matcher,
+                    got: take_n(input, 20),
+                })?;
 
-                Some((Self{
-                    name: None,
-                    content: NodeContent::Literal(Self::match_str(input, matcher)?)
-                }, len))
-            },
+                let len = beginning.bytes().len();
+                let content = NodeContent::Literal(beginning);
+
+                Ok((
+                    Self {
+                        name: None,
+                        content: content,
+                    },
+                    len,
+                ))
+            }
             RulePiece::Rule(ruleref) => {
-                Some(Self::from_rule(gram, gram.get(*ruleref)?, input)?)
-            },
+                let rule = gram.get(*ruleref).unwrap();
+                let node = Self::from_rule(gram, rule, input)?;
+                Ok(node)
+            }
         }
     }
 
-    fn match_str(input: &'input str, matcher: &'grammar str) -> Option<&'input str> {
+    fn match_str(input: &'i str, matcher: &'g str) -> Option<&'i str> {
         Some(take_start!(input, matcher)?)
     }
 }
 
+// impl<'a> RulePiece<'a> {
+//     fn name(&self, gram: &Grammar<'a>) -> &'a str {
+//         match self {
+//             Self::Literal(literal) => literal,
+//             Self::Rule(rule) => gram.get(*rule).unwrap().name,
+//         }
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
-//     use super::*;
-//     use crate::spec_parser::grammar::Grammar as SpecGrammar;
-//     use crate::spec_parser::tokens::Node as NodeTrait;
+    use std::collections::HashMap;
 
-//     #[test]
-//     fn from_grammar() {
-//         let input = "il cane";
-//         let grammar_input = r#"
-// <noun_phrase>: <article> ' ' <noun>;
-// <article>: 'il' | 'lo';
-// <noun>: 'cane' | 'gatto';
-// "#.trim();
+    use super::*;
 
-//         let (spec_grammar, _) = SpecGrammar::parse_len(grammar_input).unwrap();
-//         let grammar = Grammar::try_from(&spec_grammar).unwrap();
+    #[test]
+    fn ors() {
+        let input = "cane";
+        let rules = RuleOrs(vec![
+            RuleList(vec![RulePiece::Literal("Marco")]),
+            RuleList(vec![RulePiece::Literal("gallina")]),
+            RuleList(vec![RulePiece::Literal("gatto")]),
+            RuleList(vec![RulePiece::Literal("cane")]),
+        ]);
 
-//         let node = Node::from_grammar(&grammar, input).unwrap();
+        let rule = Rule {
+            name: "animale",
+            rule: rules.clone(),
+        };
+        let mut rules_map = HashMap::default();
+        rules_map.insert(0, rule);
 
-//         todo!();
-//     }
+        let grammar = Grammar { rules: rules_map };
+
+        let (node, _) = Node::from_grammar(&grammar, input).unwrap();
+
+        let expected = Node {
+            name: Some("animale"),
+            content: NodeContent::Cons(vec![Node {
+                name: None,
+                content: NodeContent::Literal("cane"),
+            }]),
+        };
+
+        assert_eq!(node, expected);
+    }
 }

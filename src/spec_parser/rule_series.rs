@@ -1,7 +1,7 @@
-use super::rule_piece::RulePiece;
-use super::tokens::*;
 use super::error::ParseError;
 use super::node::Node;
+use super::rule_piece::RulePiece;
+use super::tokens::*;
 use crate::node_surrounded_by;
 use crate::utils::take_n;
 
@@ -38,7 +38,7 @@ impl<'a> Node<'a> for RuleSeries<'a> {
             0 => Err(ParseError::UnexpectedWhile {
                 parsing: "rule series",
                 input: take_n(input, 20),
-                line: 0
+                line: 0,
             }),
             _ => Ok((Self(pieces), diff)),
         }

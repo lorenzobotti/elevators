@@ -1,7 +1,7 @@
+use super::error::ParseError;
+use super::node::Node;
 use super::rule_series::RuleSeries;
 use super::tokens::*;
-use super::node::Node;
-use super::error::ParseError;
 use crate::primitive_surrounded_by;
 use crate::utils::take_n;
 
@@ -29,12 +29,14 @@ impl<'a> Node<'a> for RuleOrs<'a> {
 
             let (other_series, left) = match RuleSeries::parse_and_skip(trimmed) {
                 Ok((series, left)) => (series, left),
-                Err(_) => return Err(ParseError::ExpectedWhile {
-                    parsing: "rule ors",
-                    expected: "rule series",
-                    found: take_n(input, 20),
-                    line: 0
-                }),
+                Err(_) => {
+                    return Err(ParseError::ExpectedWhile {
+                        parsing: "rule ors",
+                        expected: "rule series",
+                        found: take_n(input, 20),
+                        line: 0,
+                    })
+                }
             };
 
             trimmed = left;

@@ -1,8 +1,8 @@
 use crate::utils::take_n;
 
-use super::tokens::*;
-use super::node::Node;
 use super::error::ParseError;
+use super::node::Node;
+use super::tokens::*;
 
 #[derive(Debug, PartialEq)]
 pub enum RulePiece<'a> {
@@ -27,7 +27,7 @@ impl<'a> Node<'a> for RulePiece<'a> {
             parsing: "rule piece",
             expected: "identifier or quote",
             found: take_n(input, 20),
-            line: 0
+            line: 0,
         })
     }
 }

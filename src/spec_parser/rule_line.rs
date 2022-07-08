@@ -1,11 +1,11 @@
 use crate::utils::take_n;
 
 use super::content::Content;
+use super::error::ParseError;
+use super::node::Node;
 use super::rule_ors::RuleOrs;
 use super::tokens::PrimitiveNode;
 use super::tokens::{Identifier, Space, COLUMN, SEMICOLUMN};
-use super::node::Node;
-use super::error::ParseError;
 
 #[derive(Debug, PartialEq)]
 pub struct RuleLine<'a> {
@@ -21,7 +21,7 @@ impl<'a> Node<'a> for RuleLine<'a> {
             parsing: "rule line",
             expected: "colon",
             found: take_n(input, 20),
-            line: 0
+            line: 0,
         })?;
         let name = name.trim();
 
@@ -49,7 +49,7 @@ impl<'a> Node<'a> for RuleLine<'a> {
                 parsing: "rule line",
                 expected: "semicolon",
                 found: take_n(input, 20),
-                line: 0
+                line: 0,
             });
         }
 

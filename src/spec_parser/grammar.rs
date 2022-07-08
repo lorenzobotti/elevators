@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::spec_parser::node::Node;
 use crate::spec_parser::error::ParseError;
+use crate::spec_parser::node::Node;
 use crate::spec_parser::rule_line::RuleLine;
 
 #[derive(Debug)]

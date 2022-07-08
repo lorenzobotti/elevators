@@ -6,16 +6,16 @@ pub struct Rule<'a> {
 
 pub type RuleRef = usize;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum RulePiece<'a> {
     Literal(&'a str),
     Rule(RuleRef),
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct RuleList<'a>(pub Vec<RulePiece<'a>>);
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct RuleOrs<'a>(pub Vec<RuleList<'a>>);
 
 // impl<'a> RuleOrs<'a> {

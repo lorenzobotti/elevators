@@ -17,4 +17,3 @@ impl<'a> Grammar<'a> {
         self.rules.get(&rf)
     }
 }
-

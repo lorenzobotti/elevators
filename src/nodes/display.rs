@@ -9,14 +9,14 @@ impl<'grammar, 'input> fmt::Display for Node<'grammar, 'input> {
             Some(name) => write!(f, "{{\"name\": \"{}\", \"content\": [", name)?,
             None => write!(f, "[")?,
         }
-        
+
         write!(f, "{}", self.content)?;
-        
+
         match self.name {
             Some(_) => write!(f, "]}}")?,
             None => write!(f, "]")?,
         }
-    
+
         Ok(())
     }
 }
@@ -31,7 +31,7 @@ impl<'grammar, 'input> fmt::Display for NodeContent<'grammar, 'input> {
                     write!(f, ", ")?;
                     write!(f, "{}", node)?;
                 }
-            },
+            }
         }
 
         Ok(())

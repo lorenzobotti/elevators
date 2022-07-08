@@ -78,7 +78,7 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
 
     fn try_from(gram: &SpecGrammar<'a>) -> Result<Self, Self::Error> {
         dbg!(gram);
-        
+
         let mut rules = HashMap::new();
 
         let mut rules_to_check = VecDeque::with_capacity(gram.rules.len());
@@ -89,28 +89,26 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
 
         'checking_loop: loop {
             let line = match rules_to_check.pop_front() {
-                Some(rule) => {
-                    rule
-                }
+                Some(rule) => rule,
                 None => {
                     break 'checking_loop;
                 }
             };
 
             dbg!(line);
-            
+
             if parsed.contains(line) {
                 continue 'checking_loop;
             }
-            
+
             parsed.insert(line);
             let (id, _) = id_gen.get(line);
-            
+
             let line = match gram.rules.get(line) {
                 Some(rule) => rule,
                 None => return Err(format!("can't find rule <{}>", line)),
             };
-            
+
             let rule = Rule::from_spec(line, &mut id_gen);
             rules.insert(id, rule);
 

@@ -6,7 +6,7 @@
 
 <parola>: <lettera> | <lettera> <parola>;
 <stringa>: '"' <parola> '"';
-<spazio>: ' ' | ' ' <spazio>;
+<spazio>: ' ';
 <numero>: <cifra> | <cifra> <numero>;
 <booleano>: 'true' | 'false';
 <null>: 'null';

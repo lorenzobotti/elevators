@@ -1,12 +1,12 @@
+use std::fmt::Display;
+use std::fs;
 use std::io::{stdin, Read};
 use std::{env, process};
-use std::fs;
-use std::fmt::Display;
 
+mod nodes;
 mod rules;
 mod spec_parser;
 mod structures;
-mod nodes;
 mod utils;
 
 use nodes::node::Node;
@@ -20,9 +20,9 @@ fn main() {
 
     let (spec, _) = SpecGrammar::parse_and_skip(&grammar_raw).or_crash();
     let grammar = Grammar::try_from(&spec).or_crash();
-    
+
     let input = read_input().expect("can't read stdin");
-    let (parsed, _) = Node::from_grammar(&grammar, &input).expect("can't parse input");
+    let (parsed, _) = Node::from_grammar(&grammar, &input).or_crash();
 
     println!("{}", &parsed);
 }
@@ -47,7 +47,7 @@ impl<T, E: Display> Crash<T> for Result<T, E> {
             Err(error) => {
                 eprintln!("{}", error);
                 process::exit(1);
-            },
+            }
         }
     }
 }
