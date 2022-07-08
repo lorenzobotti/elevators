@@ -8,6 +8,7 @@ use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
 use crate::take_start;
 use crate::utils::take_n;
+use crate::utils::match_start;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub struct Node<'grammar, 'input> {
@@ -113,7 +114,7 @@ impl<'g, 'i> Node<'g, 'i> {
 
         match piece {
             RulePiece::Literal(matcher) => {
-                let beginning = Self::match_str(input, matcher).ok_or(ParseError::Expected {
+                let beginning = match_start(input, matcher).ok_or(ParseError::Expected {
                     parsing: "terminal",
                     expected: matcher,
                     got: take_n(input, 20),
@@ -135,14 +136,6 @@ impl<'g, 'i> Node<'g, 'i> {
                 let node = Self::from_rule(gram, rule, input)?;
                 Ok(node)
             }
-        }
-    }
-
-    fn match_str(input: &'i str, matcher: &'g str) -> Option<&'i str> {
-        if input.starts_with(matcher) {
-            Some(&input[..matcher.bytes().len()])
-        } else {
-            None
         }
     }
 }
