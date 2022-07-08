@@ -136,15 +136,6 @@ impl<'g, 'i> Node<'g, 'i> {
     }
 }
 
-// impl<'a> RulePiece<'a> {
-//     fn name(&self, gram: &Grammar<'a>) -> &'a str {
-//         match self {
-//             Self::Literal(literal) => literal,
-//             Self::Rule(rule) => gram.get(*rule).unwrap().name,
-//         }
-//     }
-// }
-
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
