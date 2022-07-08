@@ -13,3 +13,4 @@ pub mod rule_series;
 pub mod strings;
 pub mod token_enum;
 pub mod tokens;
+pub mod char_range;

@@ -1,7 +1,6 @@
 use std::fmt::Display;
 use std::fs;
 use std::io::{stdin, Read};
-use std::ops::BitAndAssign;
 use std::{env, process};
 
 mod nodes;
@@ -40,16 +39,16 @@ fn main() {
 
 
 
-    let grammar_file = env::args().nth(1).expect("couldn't parse filename");
-    let grammar_raw = fs::read_to_string(grammar_file).expect("couldn't read file");
+    // let grammar_file = env::args().nth(1).expect("couldn't parse filename");
+    // let grammar_raw = fs::read_to_string(grammar_file).expect("couldn't read file");
 
-    let (spec, _) = SpecGrammar::parse_and_skip(&grammar_raw).or_crash();
-    let grammar = Grammar::try_from(&spec).or_crash();
+    // let (spec, _) = SpecGrammar::parse_and_skip(&grammar_raw).or_crash();
+    // let grammar = Grammar::try_from(&spec).or_crash();
 
-    let input = read_input().expect("can't read stdin");
-    let (parsed, _) = Node::from_grammar(&grammar, &input).or_crash();
+    // let input = read_input().expect("can't read stdin");
+    // let (parsed, _) = Node::from_grammar(&grammar, &input).or_crash();
 
-    println!("{}", &parsed);
+    // println!("{}", &parsed);
 }
 
 fn read_input() -> Option<String> {
