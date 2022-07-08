@@ -6,8 +6,10 @@ pub const ASSIGN: &str = "->";
 pub const START_IDENT: char = '<';
 pub const STOP_IDENT: char = '>';
 pub const SEPARATOR: char = '|';
+pub const COLUMN: char = ':';
+pub const SEMICOLUMN: char = ';';
 
-pub trait Node<'a>: Sized {
+pub trait PrimitiveNode<'a>: Sized {
     fn parse_len(input: &'a str) -> Option<(Self, usize)>;
     fn parse_and_skip(input: &'a str) -> Option<(Self, &'a str)> {
         let (node, len) = Self::parse_len(input)?;
@@ -17,7 +19,7 @@ pub trait Node<'a>: Sized {
 
 macro_rules! literal {
     ($type: ty, $lit: expr) => {
-        impl<'a> Node<'a> for $type {
+        impl<'a> PrimitiveNode<'a> for $type {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
                 let start = take_start!(input, $lit);
                 Some((Self(start?), start?.bytes().len()))
@@ -28,7 +30,7 @@ macro_rules! literal {
 
 macro_rules! delimited {
     ($type: ty, $start: expr, $end: expr, $matcher: expr) => {
-        impl<'a> Node<'a> for $type {
+        impl<'a> PrimitiveNode<'a> for $type {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
                 let starting_size = input.bytes().len();
 

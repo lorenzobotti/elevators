@@ -1,4 +1,4 @@
-use crate::tokens::*;
+use crate::spec_parser::tokens::*;
 
 #[allow(dead_code)]
 pub enum Token<'a> {

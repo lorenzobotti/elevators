@@ -4,13 +4,15 @@
 ///
 macro_rules! take_start {
     ($input: expr, $pattern: expr) => {{
+        use crate::spec_parser::strings::trim_end;
+
         let initial_len = $input.bytes().len();
         let trimmed: &str = $input.trim_start_matches($pattern);
         let diff = initial_len - trimmed.bytes().len();
 
         match diff {
             0 => None,
-            _ => Some(crate::strings::trim_end($input, trimmed)),
+            _ => Some(trim_end($input, trimmed)),
         }
     }};
 }

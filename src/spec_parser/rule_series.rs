@@ -1,23 +1,22 @@
-use crate::rule_piece::RulePiece;
-use crate::surrounded_by;
-use crate::tokens::*;
+use super::rule_piece::RulePiece;
+use super::tokens::*;
+use super::error::ParseError;
+use super::node::Node;
+use crate::node_surrounded_by;
+use crate::utils::take_n;
 
 #[derive(Debug, PartialEq)]
 pub struct RuleSeries<'a>(pub Vec<RulePiece<'a>>);
 
 impl<'a> Node<'a> for RuleSeries<'a> {
-    fn parse_len(input: &'a str) -> Option<(Self, usize)> {
-        let starting_len = input.bytes().len();
-
+    fn parse_len(input: &'a str) -> Result<(Self, usize), ParseError> {
         let (first_piece, trimmed) = RulePiece::parse_and_skip(input)?;
         let mut pieces = vec![first_piece];
 
         let mut trimmed = trimmed;
 
         'parse_loop: loop {
-            dbg!(trimmed);
-
-            let (piece, inp) = match surrounded_by!(RulePiece, Space, trimmed) {
+            let (piece, inp) = match node_surrounded_by!(RulePiece, Space, trimmed) {
                 Some(res) => res,
                 None => {
                     break 'parse_loop;
@@ -34,17 +33,21 @@ impl<'a> Node<'a> for RuleSeries<'a> {
             assert!(trimmed_before != trimmed);
         }
 
-        dbg!("returning some");
-
-        let diff = starting_len - trimmed.bytes().len();
-        Some((Self(pieces), diff))
+        let diff = input.bytes().len() - trimmed.bytes().len();
+        match diff {
+            0 => Err(ParseError::UnexpectedWhile {
+                parsing: "rule series",
+                input: take_n(input, 20),
+                line: 0
+            }),
+            _ => Ok((Self(pieces), diff)),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tokens::*;
 
     #[test]
     fn rule_series() {
