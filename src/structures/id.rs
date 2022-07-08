@@ -22,7 +22,6 @@ where
     }
 
     fn consume_id(&mut self) -> usize {
-        //dbg!(self.id);
         let current = self.id;
         self.id += 1;
         current

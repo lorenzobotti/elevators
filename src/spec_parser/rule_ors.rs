@@ -16,8 +16,6 @@ impl<'a> Node<'a> for RuleOrs<'a> {
         let mut trimmed = trimmed;
 
         loop {
-            //dbg!("RuleOrs parsing loop");
-
             let (_, left) = match primitive_surrounded_by!(Separator, Space, trimmed) {
                 Some((sep, left)) => (sep, left),
                 None => {

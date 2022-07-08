@@ -15,8 +15,6 @@ pub struct RuleLine<'a> {
 
 impl<'a> Node<'a> for RuleLine<'a> {
     fn parse_len(input: &'a str) -> Result<(Self, usize), ParseError> {
-        //dbg!("RuleLine");
-
         let (name, rest) = input.split_once(COLUMN).ok_or(ParseError::ExpectedWhile {
             parsing: "rule line",
             expected: "colon",

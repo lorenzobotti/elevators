@@ -77,8 +77,6 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
     type Error = String;
 
     fn try_from(gram: &SpecGrammar<'a>) -> Result<Self, Self::Error> {
-        dbg!(gram);
-
         let mut rules = HashMap::new();
 
         let mut rules_to_check = VecDeque::with_capacity(gram.rules.len());
@@ -94,8 +92,6 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
                     break 'checking_loop;
                 }
             };
-
-            dbg!(line);
 
             if parsed.contains(line) {
                 continue 'checking_loop;
