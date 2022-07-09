@@ -17,7 +17,7 @@ macro_rules! take_start {
     }};
 }
 
-pub fn trim_end<'a>(input: &'a str, end: &'a str) -> &'a str {
+pub fn trim_end<'a>(input: &'a str, end: &str) -> &'a str {
     assert!(input.len() >= end.len());
 
     let diff = input.bytes().len() - end.bytes().len();
