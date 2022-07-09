@@ -1,6 +1,8 @@
 use std::fmt::Display;
+#[allow(unused_imports)]
 use std::fs;
 use std::io::{stdin, Read};
+#[allow(unused_imports)]
 use std::{env, process};
 
 mod nodes;
@@ -47,6 +49,7 @@ fn main() {
     // println!("{}", &parsed);
 }
 
+#[allow(dead_code)]
 fn read_input() -> Option<String> {
     let mut buf = String::new();
     match stdin().read_to_string(&mut buf) {
