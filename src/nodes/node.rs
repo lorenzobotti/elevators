@@ -7,8 +7,8 @@ use crate::rules::rule::RuleList;
 use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
 use crate::take_start;
-use crate::utils::take_n;
 use crate::utils::match_start;
+use crate::utils::take_n;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub struct Node<'grammar, 'input> {
@@ -109,8 +109,6 @@ impl<'g, 'i> Node<'g, 'i> {
             RulePiece::Literal(lit) => lit,
             RulePiece::Rule(r) => dbg!(gram.get(*r).unwrap().name),
         };
-
-
 
         match piece {
             RulePiece::Literal(matcher) => {

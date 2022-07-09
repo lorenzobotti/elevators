@@ -15,7 +15,6 @@ use spec_parser::grammar::Grammar as SpecGrammar;
 use spec_parser::node::Node as NodeTrait;
 
 fn main() {
-
     let input_grammatica = r#"
     <parola>: <lettera> | <lettera> <parola>;
     <lettera>: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
@@ -25,7 +24,8 @@ fn main() {
     | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i'
     | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p'
     | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w'
-    | 'x' | 'y' | 'z';"#.trim();
+    | 'x' | 'y' | 'z';"#
+        .trim();
 
     let (grammatica, _) = SpecGrammar::parse_len(input_grammatica).unwrap();
     let input = "johnny ";
@@ -33,11 +33,7 @@ fn main() {
     let node = Node::from_grammar(&grammatica, input).unwrap();
     dbg!(node);
 
-
-
     return;
-
-
 
     // let grammar_file = env::args().nth(1).expect("couldn't parse filename");
     // let grammar_raw = fs::read_to_string(grammar_file).expect("couldn't read file");
