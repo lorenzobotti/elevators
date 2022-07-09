@@ -1,7 +1,7 @@
 use crate::utils::take_n;
 
-use super::node::Node;
 use super::error::ParseError;
+use super::node::Node;
 
 pub const START_MATCH: char = '[';
 pub const END_MATCH: char = ']';
@@ -18,57 +18,67 @@ impl Node<'_> for CharRange {
         let mut chars = input.chars();
 
         match chars.next() {
-            Some(START_MATCH) => {},
-            Some(_) | None => return Err(ParseError::ExpectedWhile {
-                parsing: "char range",
-                expected: "[",
-                found: take_n(chars.as_str(),20),
-                line: 0,
-            }),
+            Some(START_MATCH) => {}
+            Some(_) | None => {
+                return Err(ParseError::ExpectedWhile {
+                    parsing: "char range",
+                    expected: "[",
+                    found: take_n(chars.as_str(), 20),
+                    line: 0,
+                })
+            }
         }
-        
+
         let from = match chars.next() {
             Some(c) => c,
-            None => return Err(ParseError::ExpectedWhile {
-                parsing: "char range",
-                expected: "eof",
-                found: take_n(chars.as_str(),20),
-                line: 0,
-            }),
+            None => {
+                return Err(ParseError::ExpectedWhile {
+                    parsing: "char range",
+                    expected: "eof",
+                    found: take_n(chars.as_str(), 20),
+                    line: 0,
+                })
+            }
         };
-        
+
         match chars.next() {
-            Some(MATCH_SEPARATOR) => {},
-            Some(_) | None => return Err(ParseError::ExpectedWhile {
-                parsing: "char range",
-                expected: "-",
-                found: take_n(chars.as_str(),20),
-                line: 0,
-            }),
+            Some(MATCH_SEPARATOR) => {}
+            Some(_) | None => {
+                return Err(ParseError::ExpectedWhile {
+                    parsing: "char range",
+                    expected: "-",
+                    found: take_n(chars.as_str(), 20),
+                    line: 0,
+                })
+            }
         }
 
         let to = match chars.next() {
             Some(c) => c,
-            None => return Err(ParseError::ExpectedWhile {
-                parsing: "char range",
-                expected: "eof",
-                found: take_n(chars.as_str(),20),
-                line: 0,
-            }),
+            None => {
+                return Err(ParseError::ExpectedWhile {
+                    parsing: "char range",
+                    expected: "eof",
+                    found: take_n(chars.as_str(), 20),
+                    line: 0,
+                })
+            }
         };
 
         match chars.next() {
-            Some(END_MATCH) => {},
-            Some(_) | None => return Err(ParseError::ExpectedWhile {
-                parsing: "char range",
-                expected: "]",
-                found: take_n(chars.as_str(),20),
-                line: 0,
-            }),
+            Some(END_MATCH) => {}
+            Some(_) | None => {
+                return Err(ParseError::ExpectedWhile {
+                    parsing: "char range",
+                    expected: "]",
+                    found: take_n(chars.as_str(), 20),
+                    line: 0,
+                })
+            }
         }
 
         let diff = input.as_bytes().len() - chars.as_str().as_bytes().len();
-        Ok((Self{from, to}, diff))
+        Ok((Self { from, to }, diff))
     }
 }
 
@@ -79,13 +89,12 @@ mod tests {
     #[test]
     fn parse() {
         let input = "[a-z][A-Z]";
-        let expected_first = CharRange{ from: 'a', to: 'z' };
-        let expected_second = CharRange{ from: 'A', to: 'Z' };
+        let expected_first = CharRange { from: 'a', to: 'z' };
+        let expected_second = CharRange { from: 'A', to: 'Z' };
 
         let (first, left) = CharRange::parse_and_skip(input).unwrap();
         assert_eq!(expected_first, first);
 
-        
         let (second, _) = CharRange::parse_and_skip(left).unwrap();
         assert_eq!(expected_second, second);
     }
