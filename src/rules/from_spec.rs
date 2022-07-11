@@ -31,7 +31,7 @@ impl<'a> FromSpec<'a> for RulePieceContent<'a> {
             SpecRulePiece::Single(quote) => quote.into(),
             SpecRulePiece::Double(quote) => quote.into(),
             SpecRulePiece::Ident(ident) => Self::Rule(id_gen.get(ident.content()).0),
-            SpecRulePiece::Range(_) => todo!(),
+            SpecRulePiece::Range(range) => Self::Literal(range.into()),
         }
     }
 }

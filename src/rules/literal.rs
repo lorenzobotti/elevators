@@ -93,12 +93,14 @@ impl<'a> From<&DoubleQuote<'a>> for Literal<'a> {
     fn from(quote: &DoubleQuote<'a>) -> Self { quote.content().into() }
 }
 
-impl<'a> From<&CharRange> for Literal<'a> {
+impl<'a> From<&CharRange> for LiteralContent<'a> {
     fn from(range: &CharRange) -> Self {
-        Self {
-            content: LiteralContent::Range{ from: range.from, to: range.to },
-        }
+        Self::Range{ from: range.from, to: range.to }
     }
+}
+
+impl<'a> From<&CharRange> for Literal<'a> {
+    fn from(range: &CharRange) -> Self {Self { content: range.into() }}
 }
 
 impl<'a> From<&SingleQuote<'a>> for RulePieceContent<'a> {
