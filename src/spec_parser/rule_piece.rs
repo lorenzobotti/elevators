@@ -24,6 +24,9 @@ impl<'a> Node<'a> for RulePiece<'a> {
         if let Some((parsed, len)) = Identifier::parse_len(input) {
             return Ok((Self::Ident(parsed), len));
         }
+        if let Ok((parsed, len)) = CharRange::parse_len(input) {
+            return Ok((Self::Range(parsed), len));
+        }
 
         Err(ParseError::ExpectedWhile {
             parsing: "rule piece",

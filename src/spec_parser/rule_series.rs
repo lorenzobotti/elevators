@@ -1,6 +1,7 @@
 use super::error::ParseError;
 use super::node::Node;
 use super::rule_piece::RulePiece;
+use super::char_range::CharRange;
 use super::tokens::*;
 use crate::node_surrounded_by;
 use crate::utils::take_n;
@@ -51,11 +52,12 @@ mod tests {
 
     #[test]
     fn rule_series() {
-        let input = r#"'hamburger' <hamburger> "automobile" <johnny_moment>"#;
+        let input = r#"'hamburger' <hamburger> "automobile" [a-z] <johnny_moment>"#;
         let expected = RuleSeries(vec![
             RulePiece::Single(SingleQuote("'hamburger'")),
             RulePiece::Ident(Identifier("<hamburger>")),
             RulePiece::Double(DoubleQuote("\"automobile\"")),
+            RulePiece::Range(CharRange{ from: 'a', to: 'z' }),
             RulePiece::Ident(Identifier("<johnny_moment>")),
         ]);
 
