@@ -5,7 +5,7 @@ pub enum ParseError<'grammar, 'input> {
     #[error("while parsing {parsing}: expected \"{expected}\", found \"{got}\"")]
     Expected {
         parsing: &'grammar str,
-        expected: &'grammar str,
+        expected: String,
         got: &'input str,
     },
 }

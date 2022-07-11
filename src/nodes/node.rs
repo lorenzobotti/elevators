@@ -2,12 +2,11 @@ use serde::Serialize;
 
 use super::error::ParseError;
 use crate::rules::grammar::Grammar;
+use crate::rules::literal::LiteralContent;
 use crate::rules::rule::Rule;
 use crate::rules::rule::RuleList;
 use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
-use crate::take_start;
-use crate::utils::match_start;
 use crate::utils::take_n;
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -69,7 +68,7 @@ impl<'g, 'i> Node<'g, 'i> {
 
         longest.ok_or(ParseError::Expected {
             parsing: name,
-            expected: name,
+            expected: name.into(),
             got: take_n(input, 20),
         })
     }
@@ -106,15 +105,18 @@ impl<'g, 'i> Node<'g, 'i> {
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
         let name = match piece {
-            RulePiece::Literal(lit) => lit,
+            RulePiece::Literal(literal) => match literal.content {
+                LiteralContent::Range { from: _, to: _ } => todo!(),
+                LiteralContent::Str(string) => string,
+            },
             RulePiece::Rule(r) => dbg!(gram.get(*r).unwrap().name),
         };
 
         match piece {
             RulePiece::Literal(matcher) => {
-                let beginning = match_start(input, matcher).ok_or(ParseError::Expected {
+                let beginning = matcher.match_str(input).ok_or(ParseError::Expected {
                     parsing: "terminal",
-                    expected: matcher,
+                    expected: matcher.to_string(),
                     got: take_n(input, 20),
                 })?;
 
@@ -123,7 +125,7 @@ impl<'g, 'i> Node<'g, 'i> {
 
                 Ok((
                     Self {
-                        name: None,
+                        name: Some(name),
                         content: content,
                     },
                     len,
@@ -148,10 +150,10 @@ mod tests {
     fn ors() {
         let input = "cane";
         let rules = RuleOrs(vec![
-            RuleList(vec![RulePiece::Literal("Marco")]),
-            RuleList(vec![RulePiece::Literal("gallina")]),
-            RuleList(vec![RulePiece::Literal("gatto")]),
-            RuleList(vec![RulePiece::Literal("cane")]),
+            RuleList(vec![RulePiece::Literal("Marco".into())]),
+            RuleList(vec![RulePiece::Literal("gallina".into())]),
+            RuleList(vec![RulePiece::Literal("gatto".into())]),
+            RuleList(vec![RulePiece::Literal("cane".into())]),
         ]);
 
         let rule = Rule {
@@ -168,7 +170,7 @@ mod tests {
         let expected = Node {
             name: Some("animale"),
             content: NodeContent::Cons(vec![Node {
-                name: None,
+                name: Some("cane"),
                 content: NodeContent::Literal("cane"),
             }]),
         };

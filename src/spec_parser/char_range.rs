@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::utils::take_n;
 
 use super::error::ParseError;
@@ -79,6 +81,12 @@ impl Node<'_> for CharRange {
 
         let diff = input.as_bytes().len() - chars.as_str().as_bytes().len();
         Ok((Self { from, to }, diff))
+    }
+}
+
+impl fmt::Display for CharRange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[{}-{}]", self.from, self.to)
     }
 }
 

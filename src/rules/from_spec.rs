@@ -27,9 +27,10 @@ impl<'a> FromSpec<'a> for RulePiece<'a> {
 
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self {
         match elem {
-            SpecRulePiece::Single(quote) => Self::Literal(quote.content()),
-            SpecRulePiece::Double(quote) => Self::Literal(quote.content()),
+            SpecRulePiece::Single(quote) => quote.into(),
+            SpecRulePiece::Double(quote) => quote.into(),
             SpecRulePiece::Ident(ident) => Self::Rule(id_gen.get(ident.content()).0),
+            SpecRulePiece::Range(_) => todo!(),
         }
     }
 }
@@ -142,7 +143,7 @@ mod tests {
             ),
             (
                 SpecRulePiece::Single(SingleQuote("'burger mobile'")),
-                RulePiece::Literal("burger mobile"),
+                RulePiece::Literal("burger mobile".into()),
             ),
             (
                 SpecRulePiece::Ident(Identifier("<johnny>")),
@@ -175,11 +176,11 @@ mod tests {
         ]);
 
         let expected = RuleList(vec![
-            RulePiece::Literal("the"),
+            RulePiece::Literal("the".into()),
             RulePiece::Rule(0),
-            RulePiece::Literal("noun"),
+            RulePiece::Literal("noun".into()),
             RulePiece::Rule(0),
-            RulePiece::Literal("was my friend"),
+            RulePiece::Literal("was my friend".into()),
             RulePiece::Rule(0),
             RulePiece::Rule(1),
         ]);

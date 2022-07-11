@@ -13,6 +13,7 @@ impl<'a> IsPrimitive for RulePiece<'a> {
             Self::Double(_) => true,
             Self::Single(_) => true,
             Self::Ident(_) => false,
+            Self::Range(_) => true,
         }
     }
 }

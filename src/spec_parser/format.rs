@@ -1,9 +1,10 @@
 use std::fmt;
 
-use crate::spec_parser::{
-    grammar::Grammar, rule_line::RuleLine, rule_ors::RuleOrs, rule_piece::RulePiece,
-    rule_series::RuleSeries,
-};
+use super::grammar::Grammar;
+use super::rule_line::RuleLine;
+use super::rule_ors::RuleOrs;
+use super::rule_piece::RulePiece;
+use super::rule_series::RuleSeries;
 
 impl<'a> fmt::Display for RulePiece<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -11,6 +12,7 @@ impl<'a> fmt::Display for RulePiece<'a> {
             Self::Double(content) => write!(f, "{}", content.0),
             Self::Single(content) => write!(f, "{}", content.0),
             Self::Ident(content) => write!(f, "{}", content.0),
+            Self::Range(range) => write!(f, "{}", range),
         }
     }
 }
@@ -20,13 +22,12 @@ impl<'a> fmt::Display for RuleSeries<'a> {
         let mut rules = self.0.iter();
 
         match rules.next() {
-            Some(rule) => rule.fmt(f)?,
+            Some(rule) => write!(f, "{}", rule)?,
             None => return Ok(()),
         }
 
         for rule in rules {
-            write!(f, " ")?;
-            rule.fmt(f)?;
+            write!(f, " {}", rule)?;
         }
 
         Ok(())
@@ -38,13 +39,12 @@ impl<'a> fmt::Display for RuleOrs<'a> {
         let mut rules = self.0.iter();
 
         match rules.next() {
-            Some(rule) => rule.fmt(f)?,
+            Some(rule) => write!(f, "{}", rule)?,
             None => return Ok(()),
         }
 
         for rule in rules {
-            write!(f, " | ")?;
-            rule.fmt(f)?;
+            write!(f, " | {}", rule)?;
         }
 
         Ok(())
@@ -53,8 +53,7 @@ impl<'a> fmt::Display for RuleOrs<'a> {
 
 impl<'a> fmt::Display for RuleLine<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: ", self.name)?;
-        self.rules.fmt(f)?;
+        write!(f, "{}: {}", self.name, self.rules)?;
         Ok(())
     }
 }

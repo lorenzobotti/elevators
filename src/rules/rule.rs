@@ -1,3 +1,5 @@
+use super::literal::Literal;
+
 #[derive(PartialEq, Debug)]
 pub struct Rule<'a> {
     pub name: &'a str,
@@ -8,7 +10,7 @@ pub type RuleRef = usize;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum RulePiece<'a> {
-    Literal(&'a str),
+    Literal(Literal<'a>),
     Rule(RuleRef),
 }
 
