@@ -7,11 +7,11 @@ use crate::spec_parser::strings::trim_start;
 use crate::spec_parser::tokens::DoubleQuote;
 use crate::spec_parser::tokens::SingleQuote;
 use crate::spec_parser::char_range::CharRange;
+use super::rule::RulePieceContent;
 use super::rule::RulePiece;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Literal<'a> {
-    pub repeated: bool,
     pub content: LiteralContent<'a>,
 }
 
@@ -33,7 +33,7 @@ impl<'a> fmt::Display for Literal<'a> {
 }
 
 impl<'a> Literal<'a> {
-    pub fn match_str<'b>(&self, input: &'b str) -> Option<&'b str> {
+    pub fn match_str<'b>(&self, input: &'b str, repeated: bool) -> Option<&'b str> {
         // todo: a little bit ugly
         match self.content {
             LiteralContent::Range { from, to } => {
@@ -46,7 +46,7 @@ impl<'a> Literal<'a> {
                     }
                 }
 
-                if self.repeated {
+                if repeated {
                     while let Some(rune) = chars.next() {
                         if !in_range(rune, from, to) { break; }
                     }
@@ -55,12 +55,13 @@ impl<'a> Literal<'a> {
             }
             LiteralContent::Str(string) => {
                 let mut left: &'b str = trim_start(input, string)?;
-                if !self.repeated { return Some(left) }
+                if !repeated { return Some(trim_end(input, left)) }
                 
                 loop {
+                    dbg!(left);
                     left = match trim_start(left, string) {
                         Some(left) => left,
-                        None => return Some(left),
+                        None => return Some(trim_end(input, left)),
                     };
                 }
             }
@@ -73,7 +74,15 @@ fn in_range(input: char, from: char, to: char) -> bool {
 }
 
 impl<'a> From<&'a str> for Literal<'a> {
-    fn from(string: &'a str) -> Self {Self { repeated: false, content: LiteralContent::Str(string) }}
+    fn from(string: &'a str) -> Self {Self { content: LiteralContent::Str(string) }}
+}
+
+impl<'a> From<&'a str> for RulePieceContent<'a> {
+    fn from(string: &'a str) -> Self { Self::Literal(string.into()) }
+}
+
+impl<'a> From<&'a str> for RulePiece<'a> {
+    fn from(string: &'a str) -> Self { Self { repeated: false, content: string.into() }}
 }
 
 impl<'a> From<&SingleQuote<'a>> for Literal<'a> {
@@ -87,20 +96,19 @@ impl<'a> From<&DoubleQuote<'a>> for Literal<'a> {
 impl<'a> From<&CharRange> for Literal<'a> {
     fn from(range: &CharRange) -> Self {
         Self {
-            repeated: false,
             content: LiteralContent::Range{ from: range.from, to: range.to },
         }
     }
 }
 
-impl<'a> From<&SingleQuote<'a>> for RulePiece<'a> {
+impl<'a> From<&SingleQuote<'a>> for RulePieceContent<'a> {
     fn from(quote: &SingleQuote<'a>) -> Self { Self::Literal(quote.into()) }
 }
 
-impl<'a> From<&DoubleQuote<'a>> for RulePiece<'a> {
+impl<'a> From<&DoubleQuote<'a>> for RulePieceContent<'a> {
     fn from(quote: &DoubleQuote<'a>) -> Self { Self::Literal(quote.into()) }
 }
 
-impl<'a> From<&CharRange> for RulePiece<'a> {
+impl<'a> From<&CharRange> for RulePieceContent<'a> {
     fn from(range: &CharRange) -> Self { Self::Literal(range.into()) }
 }

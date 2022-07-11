@@ -6,6 +6,7 @@ use super::grammar::Grammar;
 use super::rule::Rule;
 use super::rule::RuleList;
 use super::rule::RuleOrs;
+use super::rule::RulePieceContent;
 use super::rule::RulePiece;
 
 use crate::spec_parser::content::Content;
@@ -22,7 +23,7 @@ pub trait FromSpec<'a> {
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self;
 }
 
-impl<'a> FromSpec<'a> for RulePiece<'a> {
+impl<'a> FromSpec<'a> for RulePieceContent<'a> {
     type Element = SpecRulePiece<'a>;
 
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self {
@@ -42,7 +43,7 @@ impl<'a> FromSpec<'a> for RuleList<'a> {
         let pieces: Vec<RulePiece<'a>> = elem
             .0
             .iter()
-            .map(|piece| RulePiece::from_spec(piece, id_gen))
+            .map(|piece| RulePieceContent::from_spec(piece, id_gen).into())
             .collect();
 
         Self(pieces)
@@ -139,24 +140,24 @@ mod tests {
         let cases = [
             (
                 SpecRulePiece::Ident(Identifier("<automobile>")),
-                RulePiece::Rule(0),
+                RulePieceContent::Rule(0),
             ),
             (
                 SpecRulePiece::Single(SingleQuote("'burger mobile'")),
-                RulePiece::Literal("burger mobile".into()),
+                RulePieceContent::Literal("burger mobile".into()),
             ),
             (
                 SpecRulePiece::Ident(Identifier("<johnny>")),
-                RulePiece::Rule(1),
+                RulePieceContent::Rule(1),
             ),
             (
                 SpecRulePiece::Ident(Identifier("<automobile>")),
-                RulePiece::Rule(0),
+                RulePieceContent::Rule(0),
             ),
         ];
 
         for (input, expected) in cases {
-            let got = RulePiece::from_spec(&input, &mut id_gen);
+            let got = RulePieceContent::from_spec(&input, &mut id_gen);
 
             assert_eq!(expected, got);
         }
@@ -176,13 +177,13 @@ mod tests {
         ]);
 
         let expected = RuleList(vec![
-            RulePiece::Literal("the".into()),
-            RulePiece::Rule(0),
-            RulePiece::Literal("noun".into()),
-            RulePiece::Rule(0),
-            RulePiece::Literal("was my friend".into()),
-            RulePiece::Rule(0),
-            RulePiece::Rule(1),
+            "the".into(),
+            RulePieceContent::Rule(0).into(),
+            "noun".into(),
+            RulePieceContent::Rule(0).into(),
+            "was my friend".into(),
+            RulePieceContent::Rule(0).into(),
+            RulePieceContent::Rule(1).into(),
         ]);
 
         let got = RuleList::from_spec(&input, &mut id_gen);

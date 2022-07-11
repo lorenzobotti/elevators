@@ -7,6 +7,7 @@ use crate::rules::rule::Rule;
 use crate::rules::rule::RuleList;
 use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
+use crate::rules::rule::RulePieceContent;
 use crate::utils::take_n;
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -104,17 +105,17 @@ impl<'g, 'i> Node<'g, 'i> {
         piece: &RulePiece<'g>,
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
-        let name = match piece {
-            RulePiece::Literal(literal) => match literal.content {
+        let name = match &piece.content {
+            RulePieceContent::Literal(literal) => match literal.content {
                 LiteralContent::Range { from: _, to: _ } => todo!(),
                 LiteralContent::Str(string) => string,
             },
-            RulePiece::Rule(r) => dbg!(gram.get(*r).unwrap().name),
+            RulePieceContent::Rule(r) => dbg!(gram.get(*r).unwrap().name),
         };
 
-        match piece {
-            RulePiece::Literal(matcher) => {
-                let beginning = matcher.match_str(input).ok_or(ParseError::Expected {
+        match &piece.content {
+            RulePieceContent::Literal(matcher) => {
+                let beginning = matcher.match_str(input, piece.repeated).ok_or(ParseError::Expected {
                     parsing: "terminal",
                     expected: matcher.to_string(),
                     got: take_n(input, 20),
@@ -131,7 +132,7 @@ impl<'g, 'i> Node<'g, 'i> {
                     len,
                 ))
             }
-            RulePiece::Rule(ruleref) => {
+            RulePieceContent::Rule(ruleref) => {
                 let rule = gram.get(*ruleref).unwrap();
                 let node = Self::from_rule(gram, rule, input)?;
                 Ok(node)
@@ -150,10 +151,10 @@ mod tests {
     fn ors() {
         let input = "cane";
         let rules = RuleOrs(vec![
-            RuleList(vec![RulePiece::Literal("Marco".into())]),
-            RuleList(vec![RulePiece::Literal("gallina".into())]),
-            RuleList(vec![RulePiece::Literal("gatto".into())]),
-            RuleList(vec![RulePiece::Literal("cane".into())]),
+            RuleList(vec![RulePiece{content: RulePieceContent::Literal("Marco".into()), repeated: true}]),
+            RuleList(vec![RulePiece{content: RulePieceContent::Literal("gallina".into()), repeated: true}]),
+            RuleList(vec![RulePiece{content: RulePieceContent::Literal("gatto".into()), repeated: true}]),
+            RuleList(vec![RulePiece{content: RulePieceContent::Literal("cane".into()), repeated: true}]),
         ]);
 
         let rule = Rule {

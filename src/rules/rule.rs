@@ -9,7 +9,13 @@ pub struct Rule<'a> {
 pub type RuleRef = usize;
 
 #[derive(PartialEq, Debug, Clone)]
-pub enum RulePiece<'a> {
+pub struct RulePiece<'a> {
+    pub repeated: bool,
+    pub content: RulePieceContent<'a>,
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub enum RulePieceContent<'a> {
     Literal(Literal<'a>),
     Rule(RuleRef),
 }
@@ -19,6 +25,15 @@ pub struct RuleList<'a>(pub Vec<RulePiece<'a>>);
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct RuleOrs<'a>(pub Vec<RuleList<'a>>);
+
+impl<'a> From<RulePieceContent<'a>> for RulePiece<'a> {
+    fn from(content: RulePieceContent<'a>) -> Self {
+        Self{
+            repeated: false,
+            content: content,
+        }
+    }
+}
 
 // impl<'a> RuleOrs<'a> {
 //     fn parse(&self, input: &'a str) -> Option<(Node<'a>, &'a str)> {

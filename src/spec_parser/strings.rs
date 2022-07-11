@@ -26,8 +26,7 @@ pub fn trim_end<'a>(input: &'a str, end: &str) -> &'a str {
 
 pub fn trim_start<'a>(input: &'a str, start: &str) -> Option<&'a str> {
     if input.starts_with(start) {
-        let diff = input.bytes().len() - start.bytes().len();
-        Some(&input[diff..])
+        Some(&input[start.bytes().len()..])
     } else {
         None
     }
