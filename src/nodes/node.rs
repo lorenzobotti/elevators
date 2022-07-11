@@ -178,4 +178,37 @@ mod tests {
 
         assert_eq!(node, expected);
     }
+
+
+    // #[test]
+    // fn repeated() {
+    //     let input = "giovanni                      come stai?";
+    //     let rules = [
+    //         Rule {
+    //             name: "soggetto",
+    //             rule: RuleOrs(vec![
+    //                 RuleList(vec!["giovanni".into()]),
+    //             ])
+    //         },
+    //         Rule {
+    //             name: "spazio",
+    //             rule: RuleOrs(vec![
+    //                 RuleList(vec![
+    //                     RulePiece {
+    //                         repeated: true,
+    //                         content: RulePieceContent::Literal(" ".into()),
+    //                     }
+    //                     ]),
+    //                 ])
+    //             },
+    //             Rule {
+    //                 name: "soggetto",
+    //                 rule: RuleOrs(vec![
+    //                     RuleList(vec!["come stai?".into()]),
+    //                 ])
+    //             },
+    //     ];
+
+    //     let grammar: Grammar = rules.try_into();
+    // }
 }
