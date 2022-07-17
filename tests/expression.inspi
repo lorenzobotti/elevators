@@ -1,7 +1,0 @@
-<fattore>: <somma> | <somma> '*' <fattore>; 
-<somma>: <numero> | <numero> '+' <fattore>;
-<numero>: 
-   '0' | '1' | '2'
- | '3' | '4' | '5'
- | '6' | '7' | '8'
- | '9';

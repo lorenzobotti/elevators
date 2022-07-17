@@ -3,9 +3,14 @@
 version = 3
 
 [[package]]
+name = "eerie"
+version = "0.1.0"
+
+[[package]]
 name = "elevators"
 version = "0.1.0"
 dependencies = [
+ "eerie",
  "serde",
  "serde_json",
  "thiserror",

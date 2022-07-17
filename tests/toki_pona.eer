@@ -1,3 +1,5 @@
+## grammar.inspi
+```
 <sentence>: <adverb> <space> 'la' <space> <simple_sentence> | <simple_sentence>;
 <adverb>: <simple_sentence>;
 <noun_phrase>: <word> <space> <noun_phrase> | <word>;
@@ -7,3 +9,4 @@
 <object>: <noun_phrase>;
 <word>: 'mi' | 'sina' | 'ona' | 'pona' | 'toki' | 'nimi'
     | 'mani' | 'lape' | 'tomo' | 'tawa' ;
+```

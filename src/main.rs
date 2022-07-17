@@ -16,37 +16,34 @@ use rules::grammar::Grammar;
 use spec_parser::grammar::Grammar as SpecGrammar;
 use spec_parser::node::Node as NodeTrait;
 
+use eerie::Files;
+
 fn main() {
-    let input_grammatica = r#"
-    <parola>: <lettera> | <lettera> <parola>;
-    <lettera>: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
-    | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N'
-    | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U'
-    | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b'
-    | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i'
-    | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p'
-    | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w'
-    | 'x' | 'y' | 'z';"#
-        .trim();
+    let filename = env::args().nth(1).or_crash(Some("file name needed"));
+    let file = fs::read_to_string(filename).or_crash(Some("can't read file"));
 
-    let (grammatica, _) = SpecGrammar::parse_len(input_grammatica).unwrap();
-    let input = "johnny ";
-    let grammatica = Grammar::try_from(&grammatica).unwrap();
-    let node = Node::from_grammar(&grammatica, input).unwrap();
-    dbg!(node);
+    let (files, _) = Files::from_str(&file).or_crash(None);
 
-    return;
+    let grammar_file = files
+        .0
+        .iter()
+        .find(|file| file.name.ends_with(".inspi"))
+        // .or_crash(Some("can't find grammar file"))
+        .unwrap()
+        .content;
 
-    // let grammar_file = env::args().nth(1).expect("couldn't parse filename");
-    // let grammar_raw = fs::read_to_string(grammar_file).expect("couldn't read file");
+    let input_file = files
+        .0
+        .iter()
+        .find(|file| file.name.starts_with("input"))
+        .or_crash(Some("can't find input file"))
+        .content;
 
-    // let (spec, _) = SpecGrammar::parse_and_skip(&grammar_raw).or_crash();
-    // let grammar = Grammar::try_from(&spec).or_crash();
+    let (spec, _) = SpecGrammar::parse_len(grammar_file).or_crash(None);
+    let grammar = Grammar::try_from(&spec).or_crash(None);
 
-    // let input = read_input().expect("can't read stdin");
-    // let (parsed, _) = Node::from_grammar(&grammar, &input).or_crash();
-
-    // println!("{}", &parsed);
+    let (tree, _) = Node::from_grammar(&grammar, input_file).or_crash(None);
+    println!("{}", tree);
 }
 
 #[allow(dead_code)]
@@ -60,15 +57,35 @@ fn read_input() -> Option<String> {
 }
 
 trait Crash<T> {
-    fn or_crash(self) -> T;
+    fn or_crash(self, message: Option<&str>) -> T;
+}
+
+impl<T> Crash<T> for Option<T> {
+    fn or_crash(self, message: Option<&str>) -> T {
+        match self {
+            Some(content) => return content,
+            None => {
+                match message {
+                    Some(mess) => eprintln!("{}", mess),
+                    None => eprintln!("empty option"),
+                }
+
+                process::exit(1);
+            }
+        }
+    }
 }
 
 impl<T, E: Display> Crash<T> for Result<T, E> {
-    fn or_crash(self) -> T {
+    fn or_crash(self, message: Option<&str>) -> T {
         match self {
             Ok(content) => content,
             Err(error) => {
-                eprintln!("{}", error);
+                match message {
+                    Some(mess) => eprintln!("{}", mess),
+                    None => eprintln!("{}", error),
+                }
+
                 process::exit(1);
             }
         }
