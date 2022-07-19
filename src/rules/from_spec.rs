@@ -6,8 +6,8 @@ use super::grammar::Grammar;
 use super::rule::Rule;
 use super::rule::RuleList;
 use super::rule::RuleOrs;
-use super::rule::RulePieceContent;
 use super::rule::RulePiece;
+use super::rule::RulePieceContent;
 
 use crate::spec_parser::content::Content;
 use crate::spec_parser::grammar::Grammar as SpecGrammar;

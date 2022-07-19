@@ -1,16 +1,16 @@
 use crate::utils::take_n;
 
+use super::char_range::CharRange;
 use super::error::ParseError;
 use super::node::Node;
 use super::tokens::*;
-use super::char_range::CharRange;
 
 #[derive(Debug, PartialEq)]
 pub enum RulePiece<'a> {
     Single(SingleQuote<'a>),
     Double(DoubleQuote<'a>),
     Ident(Identifier<'a>),
-    Range(CharRange)
+    Range(CharRange),
 }
 
 impl<'a> Node<'a> for RulePiece<'a> {

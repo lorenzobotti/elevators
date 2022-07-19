@@ -57,7 +57,7 @@ mod tests {
             RulePiece::Single(SingleQuote("'hamburger'")),
             RulePiece::Ident(Identifier("<hamburger>")),
             RulePiece::Double(DoubleQuote("\"automobile\"")),
-            RulePiece::Range(CharRange{ from: 'a', to: 'z' }),
+            RulePiece::Range(CharRange { from: 'a', to: 'z' }),
             RulePiece::Ident(Identifier("<johnny_moment>")),
         ]);
 

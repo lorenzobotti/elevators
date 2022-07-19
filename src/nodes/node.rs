@@ -105,21 +105,25 @@ impl<'g, 'i> Node<'g, 'i> {
         piece: &RulePiece<'g>,
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
+
         let name = match &piece.content {
             RulePieceContent::Literal(literal) => match literal.content {
-                LiteralContent::Range { from: _, to: _ } => todo!(),
+                LiteralContent::Range { from: _, to: _ } => "char range",
                 LiteralContent::Str(string) => string,
             },
-            RulePieceContent::Rule(r) => dbg!(gram.get(*r).unwrap().name),
+            RulePieceContent::Rule(r) => gram.get(*r).unwrap().name,
         };
 
         match &piece.content {
             RulePieceContent::Literal(matcher) => {
-                let beginning = matcher.match_str(input, piece.repeated).ok_or(ParseError::Expected {
-                    parsing: "terminal",
-                    expected: matcher.to_string(),
-                    got: take_n(input, 20),
-                })?;
+                let beginning =
+                    matcher
+                        .match_str(input, piece.repeated)
+                        .ok_or(ParseError::Expected {
+                            parsing: "terminal",
+                            expected: matcher.to_string(),
+                            got: take_n(input, 20),
+                        })?;
 
                 let len = beginning.bytes().len();
                 let content = NodeContent::Literal(beginning);
@@ -151,10 +155,22 @@ mod tests {
     fn ors() {
         let input = "cane";
         let rules = RuleOrs(vec![
-            RuleList(vec![RulePiece{content: RulePieceContent::Literal("Marco".into()), repeated: true}]),
-            RuleList(vec![RulePiece{content: RulePieceContent::Literal("gallina".into()), repeated: true}]),
-            RuleList(vec![RulePiece{content: RulePieceContent::Literal("gatto".into()), repeated: true}]),
-            RuleList(vec![RulePiece{content: RulePieceContent::Literal("cane".into()), repeated: true}]),
+            RuleList(vec![RulePiece {
+                content: RulePieceContent::Literal("Marco".into()),
+                repeated: true,
+            }]),
+            RuleList(vec![RulePiece {
+                content: RulePieceContent::Literal("gallina".into()),
+                repeated: true,
+            }]),
+            RuleList(vec![RulePiece {
+                content: RulePieceContent::Literal("gatto".into()),
+                repeated: true,
+            }]),
+            RuleList(vec![RulePiece {
+                content: RulePieceContent::Literal("cane".into()),
+                repeated: true,
+            }]),
         ]);
 
         let rule = Rule {
@@ -178,7 +194,6 @@ mod tests {
 
         assert_eq!(node, expected);
     }
-
 
     // #[test]
     // fn repeated() {

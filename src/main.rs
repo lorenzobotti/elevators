@@ -28,8 +28,7 @@ fn main() {
         .0
         .iter()
         .find(|file| file.name.ends_with(".inspi"))
-        // .or_crash(Some("can't find grammar file"))
-        .unwrap()
+        .or_crash(Some("can't find grammar file"))
         .content;
 
     let input_file = files

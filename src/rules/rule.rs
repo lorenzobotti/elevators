@@ -28,7 +28,7 @@ pub struct RuleOrs<'a>(pub Vec<RuleList<'a>>);
 
 impl<'a> From<RulePieceContent<'a>> for RulePiece<'a> {
     fn from(content: RulePieceContent<'a>) -> Self {
-        Self{
+        Self {
             repeated: false,
             content: content,
         }
