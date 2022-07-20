@@ -98,6 +98,7 @@ impl<'a> From<CharRange> for RulePieceContent<'a> {
 mod tests {
     use super::*;
 
+    #[test]
     fn repetition() {
         let cases = [
             ("' '+", RulePiece{ content: RulePieceContent::Single(SingleQuote("' '")), repetition: Repetition::RepeatTogether }),
