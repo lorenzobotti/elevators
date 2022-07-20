@@ -147,8 +147,7 @@ impl<'g, 'i> Node<'g, 'i> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
+    use rustc_hash::FxHashMap;
     use super::*;
 
     #[test]
@@ -177,7 +176,7 @@ mod tests {
             name: "animale",
             rule: rules.clone(),
         };
-        let mut rules_map = HashMap::default();
+        let mut rules_map = FxHashMap::default();
         rules_map.insert(0, rule);
 
         let grammar = Grammar { rules: rules_map };

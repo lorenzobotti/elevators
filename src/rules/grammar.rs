@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use super::rule::Rule;
 use super::rule::RuleRef;
 
 #[derive(PartialEq, Debug)]
 pub struct Grammar<'a> {
-    pub rules: HashMap<RuleRef, Rule<'a>>,
+    pub rules: FxHashMap<RuleRef, Rule<'a>>,
 }
 
 impl<'a> Grammar<'a> {

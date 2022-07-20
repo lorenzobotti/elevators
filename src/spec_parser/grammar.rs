@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use crate::spec_parser::error::ParseError;
 use crate::spec_parser::node::Node;
@@ -7,12 +7,12 @@ use crate::spec_parser::rule_line::RuleLine;
 #[derive(Debug)]
 pub struct Grammar<'a> {
     pub main: &'a str,
-    pub rules: HashMap<&'a str, RuleLine<'a>>,
+    pub rules: FxHashMap<&'a str, RuleLine<'a>>,
 }
 
 impl<'a> Node<'a> for Grammar<'a> {
     fn parse_len(input: &'a str) -> Result<(Self, usize), ParseError> {
-        let mut rules = HashMap::new();
+        let mut rules = FxHashMap::default();
         let mut first_rule = None;
 
         let mut left = input;

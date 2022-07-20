@@ -1,6 +1,7 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
 use std::collections::VecDeque;
+
+use rustc_hash::FxHashMap;
+use rustc_hash::FxHashSet;
 
 use super::grammar::Grammar;
 use super::rule::Rule;
@@ -79,12 +80,12 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
     type Error = String;
 
     fn try_from(gram: &SpecGrammar<'a>) -> Result<Self, Self::Error> {
-        let mut rules = HashMap::new();
+        let mut rules = FxHashMap::default();
 
         let mut rules_to_check = VecDeque::with_capacity(gram.rules.len());
         let mut id_gen = Id::default();
 
-        let mut parsed = HashSet::new();
+        let mut parsed = FxHashSet::default();
         rules_to_check.push_back(gram.main);
 
         'checking_loop: loop {
