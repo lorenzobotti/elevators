@@ -1,6 +1,7 @@
 use super::error::ParseError;
 use super::node::Node;
 use super::rule_series::RuleSeries;
+use super::rule_piece::RulePieceContent;
 use super::tokens::*;
 use crate::primitive_surrounded_by;
 use crate::utils::take_n;
@@ -54,17 +55,17 @@ mod tests {
             r#"<hamburger_mobile> <space> <jimmy> | "mamma mia" '"' "burger" <moment> | "hi""#;
         let expected = RuleOrs(vec![
             RuleSeries(vec![
-                RulePiece::Ident(Identifier("<hamburger_mobile>")),
-                RulePiece::Ident(Identifier("<space>")),
-                RulePiece::Ident(Identifier("<jimmy>")),
+                RulePieceContent::from(Identifier("<hamburger_mobile>")).into(),
+                RulePieceContent::from(Identifier("<space>")).into(),
+                RulePieceContent::from(Identifier("<jimmy>")).into(),
             ]),
             RuleSeries(vec![
-                RulePiece::Double(DoubleQuote("\"mamma mia\"")),
-                RulePiece::Single(SingleQuote("'\"'")),
-                RulePiece::Double(DoubleQuote("\"burger\"")),
-                RulePiece::Ident(Identifier("<moment>")),
+                RulePieceContent::from(DoubleQuote("\"mamma mia\"")).into(),
+                RulePieceContent::from(SingleQuote("'\"'")).into(),
+                RulePieceContent::from(DoubleQuote("\"burger\"")).into(),
+                RulePieceContent::from(Identifier("<moment>")).into(),
             ]),
-            RuleSeries(vec![RulePiece::Double(DoubleQuote("\"hi\""))]),
+            RuleSeries(vec![RulePieceContent::from(DoubleQuote("\"hi\"")).into()]),
         ]);
 
         let (got, _) = RuleOrs::parse_len(input).unwrap();

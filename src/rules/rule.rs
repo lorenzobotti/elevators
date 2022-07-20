@@ -1,3 +1,5 @@
+use crate::spec_parser::tokens::SingleQuote;
+
 use super::literal::Literal;
 
 #[derive(PartialEq, Debug)]

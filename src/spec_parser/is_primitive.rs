@@ -1,6 +1,7 @@
 use super::rule_line::RuleLine;
 use super::rule_ors::RuleOrs;
 use super::rule_piece::RulePiece;
+use super::rule_piece::RulePieceContent;
 use super::rule_series::RuleSeries;
 
 pub trait IsPrimitive {
@@ -9,11 +10,11 @@ pub trait IsPrimitive {
 
 impl<'a> IsPrimitive for RulePiece<'a> {
     fn is_primitive(&self) -> bool {
-        match self {
-            Self::Double(_) => true,
-            Self::Single(_) => true,
-            Self::Ident(_) => false,
-            Self::Range(_) => true,
+        match self.content {
+            RulePieceContent::Double(_) => true,
+            RulePieceContent::Single(_) => true,
+            RulePieceContent::Ident(_) => false,
+            RulePieceContent::Range(_) => true,
         }
     }
 }

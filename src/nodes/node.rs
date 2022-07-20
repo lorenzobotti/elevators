@@ -105,7 +105,6 @@ impl<'g, 'i> Node<'g, 'i> {
         piece: &RulePiece<'g>,
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
-
         let name = match &piece.content {
             RulePieceContent::Literal(literal) => match literal.content {
                 LiteralContent::Range { from: _, to: _ } => "char range",
@@ -147,8 +146,8 @@ impl<'g, 'i> Node<'g, 'i> {
 
 #[cfg(test)]
 mod tests {
-    use rustc_hash::FxHashMap;
     use super::*;
+    use rustc_hash::FxHashMap;
 
     #[test]
     fn ors() {

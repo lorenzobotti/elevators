@@ -43,7 +43,7 @@ impl<'a> Literal<'a> {
                         return None;
                     }
                 }
-                
+
                 if repeated {
                     while let Some(rune) = chars.next() {
                         if !in_range(rune, from, to) {
@@ -67,6 +67,12 @@ impl<'a> Literal<'a> {
                 }
             }
         }
+    }
+}
+
+impl<'a> From<LiteralContent<'a>> for Literal<'a> {
+    fn from(content: LiteralContent<'a>) -> Self {
+        Self { content: content }
     }
 }
 

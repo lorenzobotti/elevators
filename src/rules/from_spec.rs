@@ -4,6 +4,7 @@ use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 
 use super::grammar::Grammar;
+use super::literal::Literal;
 use super::rule::Rule;
 use super::rule::RuleList;
 use super::rule::RuleOrs;
@@ -15,6 +16,7 @@ use crate::spec_parser::grammar::Grammar as SpecGrammar;
 use crate::spec_parser::rule_line::RuleLine as SpecRuleLine;
 use crate::spec_parser::rule_ors::RuleOrs as SpecRuleOrs;
 use crate::spec_parser::rule_piece::RulePiece as SpecRulePiece;
+use crate::spec_parser::rule_piece::RulePieceContent as SpecRulePieceContent;
 use crate::spec_parser::rule_series::RuleSeries as SpecRuleSeries;
 
 use crate::structures::id::Id;
@@ -28,11 +30,11 @@ impl<'a> FromSpec<'a> for RulePieceContent<'a> {
     type Element = SpecRulePiece<'a>;
 
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self {
-        match elem {
-            SpecRulePiece::Single(quote) => quote.into(),
-            SpecRulePiece::Double(quote) => quote.into(),
-            SpecRulePiece::Ident(ident) => Self::Rule(id_gen.get(ident.content()).0),
-            SpecRulePiece::Range(range) => Self::Literal(range.into()),
+        match &elem.content {
+            SpecRulePieceContent::Single(quote) => Self::from(RulePieceContent::from(quote)),
+            SpecRulePieceContent::Double(quote) => Self::from(RulePieceContent::from(quote)),
+            SpecRulePieceContent::Ident(ident) => Self::Rule(id_gen.get(ident.content()).0),
+            SpecRulePieceContent::Range(range) => Self::from(RulePieceContent::from(range)),
         }
     }
 }
@@ -50,6 +52,7 @@ impl<'a> FromSpec<'a> for RuleList<'a> {
         Self(pieces)
     }
 }
+
 impl<'a> FromSpec<'a> for RuleOrs<'a> {
     type Element = SpecRuleOrs<'a>;
 
@@ -113,8 +116,8 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
 
             for series in &line.rules.0 {
                 'check_piece: for piece in &series.0 {
-                    let name = match piece {
-                        SpecRulePiece::Ident(ident) => ident.content(),
+                    let name = match &piece.content {
+                        SpecRulePieceContent::Ident(ident) => ident.content(),
                         _ => continue 'check_piece,
                     };
 
@@ -140,19 +143,19 @@ mod tests {
         let mut id_gen = Id::default();
         let cases = [
             (
-                SpecRulePiece::Ident(Identifier("<automobile>")),
+                SpecRulePieceContent::from(Identifier("<automobile>")).into(),
                 RulePieceContent::Rule(0),
             ),
             (
-                SpecRulePiece::Single(SingleQuote("'burger mobile'")),
+                SpecRulePieceContent::from(SingleQuote("'burger mobile'")).into(),
                 RulePieceContent::Literal("burger mobile".into()),
             ),
             (
-                SpecRulePiece::Ident(Identifier("<johnny>")),
+                SpecRulePieceContent::from(Identifier("<johnny>")).into(),
                 RulePieceContent::Rule(1),
             ),
             (
-                SpecRulePiece::Ident(Identifier("<automobile>")),
+                SpecRulePieceContent::from(Identifier("<automobile>")).into(),
                 RulePieceContent::Rule(0),
             ),
         ];
@@ -168,30 +171,28 @@ mod tests {
     fn from_rule_series() {
         let mut id_gen = Id::default();
         let input = SpecRuleSeries(vec![
-            SpecRulePiece::Single(SingleQuote("'the'")),
-            SpecRulePiece::Ident(Identifier("<space>")),
-            SpecRulePiece::Double(DoubleQuote("\"noun\"")),
-            SpecRulePiece::Ident(Identifier("<space>")),
-            SpecRulePiece::Double(DoubleQuote("\"was my friend\"")),
-            SpecRulePiece::Ident(Identifier("<space>")),
-            SpecRulePiece::Ident(Identifier("<period>")),
+            SpecRulePieceContent::from(SingleQuote("'the'")).into(),
+            SpecRulePieceContent::from(Identifier("<space>")).into(),
+            SpecRulePieceContent::from(DoubleQuote("\"noun\"")).into(),
+            SpecRulePieceContent::from(Identifier("<space>")).into(),
+            SpecRulePieceContent::from(DoubleQuote("\"was my friend\"")).into(),
+            SpecRulePieceContent::from(Identifier("<space>")).into(),
+            SpecRulePieceContent::from(Identifier("<period>")).into(),
         ]);
 
         let expected = RuleList(vec![
-            "the".into(),
-            RulePieceContent::Rule(0).into(),
-            "noun".into(),
-            RulePieceContent::Rule(0).into(),
-            "was my friend".into(),
-            RulePieceContent::Rule(0).into(),
-            RulePieceContent::Rule(1).into(),
+            RulePieceContent::from("the").into(),
+            RulePieceContent::from(RulePieceContent::Rule(0)).into(),
+            RulePieceContent::from("noun").into(),
+            RulePieceContent::from(RulePieceContent::Rule(0)).into(),
+            RulePieceContent::from("was my friend").into(),
+            RulePieceContent::from(RulePieceContent::Rule(0)).into(),
+            RulePieceContent::from(RulePieceContent::Rule(1)).into(),
         ]);
 
         let got = RuleList::from_spec(&input, &mut id_gen);
 
         assert_eq!(expected, got);
-
-        // assert_eq!(expected, got);
     }
 
     // #[test]

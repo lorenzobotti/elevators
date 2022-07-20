@@ -65,7 +65,10 @@ impl<'a> Node<'a> for RuleLine<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::spec_parser::{rule_piece::RulePiece, rule_series::RuleSeries, tokens::Identifier};
+    use crate::spec_parser::rule_piece::RulePiece;
+    use crate::spec_parser::rule_piece::RulePieceContent;
+    use crate::spec_parser::rule_series::RuleSeries;
+    use crate::spec_parser::tokens::Identifier;
 
     use super::*;
 
@@ -75,10 +78,10 @@ mod tests {
         let expected = RuleLine {
             name: "my_rule",
             rules: RuleOrs(vec![
-                RuleSeries(vec![RulePiece::Ident(Identifier("<letter>"))]),
+                RuleSeries(vec![RulePieceContent::Ident(Identifier("<letter>")).into()]),
                 RuleSeries(vec![
-                    RulePiece::Ident(Identifier("<letter>")),
-                    RulePiece::Ident(Identifier("<my_rule>")),
+                    RulePieceContent::Ident(Identifier("<letter>")).into(),
+                    RulePieceContent::Ident(Identifier("<my_rule>")).into(),
                 ]),
             ]),
         };

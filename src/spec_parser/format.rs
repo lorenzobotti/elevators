@@ -4,15 +4,16 @@ use super::grammar::Grammar;
 use super::rule_line::RuleLine;
 use super::rule_ors::RuleOrs;
 use super::rule_piece::RulePiece;
+use super::rule_piece::RulePieceContent;
 use super::rule_series::RuleSeries;
 
 impl<'a> fmt::Display for RulePiece<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Double(content) => write!(f, "{}", content.0),
-            Self::Single(content) => write!(f, "{}", content.0),
-            Self::Ident(content) => write!(f, "{}", content.0),
-            Self::Range(range) => write!(f, "{}", range),
+        match &self.content {
+            RulePieceContent::Double(content) => write!(f, "{}", content.0),
+            RulePieceContent::Single(content) => write!(f, "{}", content.0),
+            RulePieceContent::Ident(content) => write!(f, "{}", content.0),
+            RulePieceContent::Range(range) => write!(f, "{}", range),
         }
     }
 }
