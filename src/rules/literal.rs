@@ -5,11 +5,13 @@ use super::rule::RulePiece;
 use super::rule::RulePieceContent;
 use crate::spec_parser::char_range::CharRange;
 use crate::spec_parser::content::Content;
+use crate::spec_parser::rule_piece::Repetition;
 use crate::spec_parser::strings::trim_end;
 use crate::spec_parser::strings::trim_start;
 use crate::spec_parser::tokens::DoubleQuote;
 use crate::spec_parser::tokens::SingleQuote;
 
+// todo: non serve più il content
 #[derive(Debug, PartialEq, Clone)]
 pub struct Literal<'a> {
     pub content: LiteralContent<'a>,
@@ -100,7 +102,7 @@ impl<'a> From<&'a str> for RulePieceContent<'a> {
 impl<'a> From<&'a str> for RulePiece<'a> {
     fn from(string: &'a str) -> Self {
         Self {
-            repeated: false,
+            repetition: Repetition::RepeatSeparate,
             content: string.into(),
         }
     }

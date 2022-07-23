@@ -1,7 +1,6 @@
 use super::error::ParseError;
 use super::node::Node;
 use super::rule_piece::RulePiece;
-use super::rule_piece::RulePieceContent;
 use super::tokens::*;
 use crate::node_surrounded_by;
 use crate::utils::take_n;
@@ -49,6 +48,7 @@ impl<'a> Node<'a> for RuleSeries<'a> {
 #[cfg(test)]
 mod tests {
     use super::super::char_range::CharRange;
+    use super::super::rule_piece::RulePieceContent;
     use super::*;
 
     #[test]

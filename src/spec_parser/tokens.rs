@@ -41,7 +41,6 @@ macro_rules! delimited {
                     None => "",
                 };
 
-                dbg!($start, $end, content);
                 let trimmed = trimmed.strip_prefix(content)?;
 
                 take_start!(trimmed, $end)?;

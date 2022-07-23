@@ -8,6 +8,7 @@ use crate::rules::rule::RuleList;
 use crate::rules::rule::RuleOrs;
 use crate::rules::rule::RulePiece;
 use crate::rules::rule::RulePieceContent;
+use crate::spec_parser::rule_piece::Repetition;
 use crate::utils::take_n;
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -105,24 +106,91 @@ impl<'g, 'i> Node<'g, 'i> {
         piece: &RulePiece<'g>,
         input: &'i str,
     ) -> Result<(Self, usize), ParseError<'g, 'i>> {
-        let name = match &piece.content {
-            RulePieceContent::Literal(literal) => match literal.content {
-                LiteralContent::Range { from: _, to: _ } => "char range",
-                LiteralContent::Str(string) => string,
-            },
-            RulePieceContent::Rule(r) => gram.get(*r).unwrap().name,
-        };
+        let name = Self::get_name(gram, &piece.content);
 
-        match &piece.content {
+        match (&piece.content, &piece.repetition) {
+            (RulePieceContent::Literal(_) | RulePieceContent::Rule(_), Repetition::Single) => {
+                Self::from_rule_piece_content(gram, &piece.content, input)
+            }
+            (
+                RulePieceContent::Literal(lit),
+                Repetition::RepeatTogether | Repetition::RepeatSeparate,
+            ) => {
+                // todo: RepeatSeparate non è implementato per Literal
+                let name = Self::get_name(gram, &piece.content);
+                let matched = lit.match_str(input, true).ok_or(ParseError::Expected {
+                    parsing: name,
+                    expected: name.into(),
+                    got: take_n(input, 20),
+                })?;
+
+                Ok((
+                    Self {
+                        name: Some(name),
+                        content: NodeContent::Literal(matched),
+                    },
+                    matched.bytes().len(),
+                ))
+            }
+            (RulePieceContent::Rule(ruleref), repetition) => {
+                // todo: creare errore apposta
+                let rule = gram.get(*ruleref).expect("can't find rule");
+                let mut found = Vec::new();
+
+                let mut rest = input;
+
+                'parse_loop: loop {
+                    match Self::from_rule(gram, rule, rest) {
+                        Ok((node, len)) => {
+                            found.push(node);
+                            rest = &rest[len..];
+                        }
+                        Err(err) => match found.len() {
+                            0 => return Err(err),
+                            _ => break 'parse_loop,
+                        },
+                    }
+                }
+
+                let len = input.bytes().len() - rest.bytes().len();
+
+                match repetition {
+                    Repetition::Single => unreachable!(),
+                    Repetition::RepeatTogether => Ok((
+                        Self {
+                            name: name.into(),
+                            content: NodeContent::Literal(&input[..len]),
+                        },
+                        len,
+                    )),
+                    Repetition::RepeatSeparate => Ok((
+                        Self {
+                            name: name.into(),
+                            content: NodeContent::Cons(found),
+                        },
+                        len,
+                    )),
+                }
+            }
+        }
+    }
+
+    fn from_rule_piece_content(
+        gram: &'g Grammar<'g>,
+        piece: &RulePieceContent<'g>,
+        input: &'i str,
+    ) -> Result<(Self, usize), ParseError<'g, 'i>> {
+        let name = Self::get_name(gram, &piece);
+
+        match piece {
             RulePieceContent::Literal(matcher) => {
-                let beginning =
-                    matcher
-                        .match_str(input, piece.repeated)
-                        .ok_or(ParseError::Expected {
-                            parsing: "terminal",
-                            expected: matcher.to_string(),
-                            got: take_n(input, 20),
-                        })?;
+                let beginning = matcher
+                    .match_str(input, false)
+                    .ok_or(ParseError::Expected {
+                        parsing: "terminal",
+                        expected: matcher.to_string(),
+                        got: take_n(input, 20),
+                    })?;
 
                 let len = beginning.bytes().len();
                 let content = NodeContent::Literal(beginning);
@@ -142,6 +210,16 @@ impl<'g, 'i> Node<'g, 'i> {
             }
         }
     }
+
+    fn get_name(gram: &'g Grammar<'g>, content: &RulePieceContent<'g>) -> &'g str {
+        match content {
+            RulePieceContent::Literal(literal) => match literal.content {
+                LiteralContent::Range { from: _, to: _ } => "char range",
+                LiteralContent::Str(string) => string,
+            },
+            RulePieceContent::Rule(r) => gram.get(*r).unwrap().name,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -155,19 +233,19 @@ mod tests {
         let rules = RuleOrs(vec![
             RuleList(vec![RulePiece {
                 content: RulePieceContent::Literal("Marco".into()),
-                repeated: true,
+                repetition: Repetition::Single,
             }]),
             RuleList(vec![RulePiece {
                 content: RulePieceContent::Literal("gallina".into()),
-                repeated: true,
+                repetition: Repetition::RepeatSeparate,
             }]),
             RuleList(vec![RulePiece {
                 content: RulePieceContent::Literal("gatto".into()),
-                repeated: true,
+                repetition: Repetition::RepeatTogether,
             }]),
             RuleList(vec![RulePiece {
                 content: RulePieceContent::Literal("cane".into()),
-                repeated: true,
+                repetition: Repetition::RepeatTogether,
             }]),
         ]);
 

@@ -65,7 +65,6 @@ impl<'a> Node<'a> for RuleLine<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::spec_parser::rule_piece::RulePiece;
     use crate::spec_parser::rule_piece::RulePieceContent;
     use crate::spec_parser::rule_series::RuleSeries;
     use crate::spec_parser::tokens::Identifier;

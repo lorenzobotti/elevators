@@ -22,7 +22,7 @@ pub enum RulePieceContent<'a> {
 pub const REPEAT_TOGETHER: char = '+';
 pub const REPEAT_SEPARATE: char = '*';
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Repetition {
     Single,
     RepeatTogether,
@@ -79,19 +79,27 @@ impl<'a> From<RulePieceContent<'a>> for RulePiece<'a> {
 }
 
 impl<'a> From<SingleQuote<'a>> for RulePieceContent<'a> {
-    fn from(quote: SingleQuote<'a>) -> Self { Self::Single(quote) }
+    fn from(quote: SingleQuote<'a>) -> Self {
+        Self::Single(quote)
+    }
 }
 
 impl<'a> From<DoubleQuote<'a>> for RulePieceContent<'a> {
-    fn from(quote: DoubleQuote<'a>) -> Self { Self::Double(quote) }
+    fn from(quote: DoubleQuote<'a>) -> Self {
+        Self::Double(quote)
+    }
 }
 
 impl<'a> From<Identifier<'a>> for RulePieceContent<'a> {
-    fn from(ident: Identifier<'a>) -> Self { Self::Ident(ident) }
+    fn from(ident: Identifier<'a>) -> Self {
+        Self::Ident(ident)
+    }
 }
 
 impl<'a> From<CharRange> for RulePieceContent<'a> {
-    fn from(range: CharRange) -> Self { Self::Range(range) }
+    fn from(range: CharRange) -> Self {
+        Self::Range(range)
+    }
 }
 
 #[cfg(test)]
@@ -101,9 +109,27 @@ mod tests {
     #[test]
     fn repetition() {
         let cases = [
-            ("' '+", RulePiece{ content: RulePieceContent::Single(SingleQuote("' '")), repetition: Repetition::RepeatTogether }),
-            ("<key_pair>*", RulePiece{ content: RulePieceContent::Ident(Identifier("<key_pair>")), repetition: Repetition::RepeatSeparate }),
-            ("\"burger\"", RulePiece{ content: RulePieceContent::Double(DoubleQuote("\"burger\"")), repetition: Repetition::Single }),
+            (
+                "' '+",
+                RulePiece {
+                    content: RulePieceContent::Single(SingleQuote("' '")),
+                    repetition: Repetition::RepeatTogether,
+                },
+            ),
+            (
+                "<key_pair>*",
+                RulePiece {
+                    content: RulePieceContent::Ident(Identifier("<key_pair>")),
+                    repetition: Repetition::RepeatSeparate,
+                },
+            ),
+            (
+                "\"burger\"",
+                RulePiece {
+                    content: RulePieceContent::Double(DoubleQuote("\"burger\"")),
+                    repetition: Repetition::Single,
+                },
+            ),
         ];
 
         for (input, expected) in cases {

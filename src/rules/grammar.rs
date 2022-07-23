@@ -5,6 +5,7 @@ use super::rule::RuleRef;
 
 #[derive(PartialEq, Debug)]
 pub struct Grammar<'a> {
+    // todo: questo potrebbe tranquillamente essere un Vec
     pub rules: FxHashMap<RuleRef, Rule<'a>>,
 }
 

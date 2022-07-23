@@ -1,4 +1,4 @@
-use crate::spec_parser::tokens::SingleQuote;
+use crate::spec_parser::rule_piece::Repetition;
 
 use super::literal::Literal;
 
@@ -12,7 +12,7 @@ pub type RuleRef = usize;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct RulePiece<'a> {
-    pub repeated: bool,
+    pub repetition: Repetition,
     pub content: RulePieceContent<'a>,
 }
 
@@ -31,7 +31,7 @@ pub struct RuleOrs<'a>(pub Vec<RuleList<'a>>);
 impl<'a> From<RulePieceContent<'a>> for RulePiece<'a> {
     fn from(content: RulePieceContent<'a>) -> Self {
         Self {
-            repeated: false,
+            repetition: Repetition::Single,
             content: content,
         }
     }

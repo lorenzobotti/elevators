@@ -4,7 +4,6 @@ use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 
 use super::grammar::Grammar;
-use super::literal::Literal;
 use super::rule::Rule;
 use super::rule::RuleList;
 use super::rule::RuleOrs;
@@ -26,15 +25,29 @@ pub trait FromSpec<'a> {
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self;
 }
 
-impl<'a> FromSpec<'a> for RulePieceContent<'a> {
+impl<'a> FromSpec<'a> for RulePiece<'a> {
     type Element = SpecRulePiece<'a>;
 
     fn from_spec(elem: &Self::Element, id_gen: &mut Id<&'a str>) -> Self {
-        match &elem.content {
-            SpecRulePieceContent::Single(quote) => Self::from(RulePieceContent::from(quote)),
-            SpecRulePieceContent::Double(quote) => Self::from(RulePieceContent::from(quote)),
-            SpecRulePieceContent::Ident(ident) => Self::Rule(id_gen.get(ident.content()).0),
-            SpecRulePieceContent::Range(range) => Self::from(RulePieceContent::from(range)),
+        let content = match &elem.content {
+            SpecRulePieceContent::Single(quote) => {
+                RulePieceContent::from(RulePieceContent::from(quote))
+            }
+            SpecRulePieceContent::Double(quote) => {
+                RulePieceContent::from(RulePieceContent::from(quote))
+            }
+            SpecRulePieceContent::Ident(ident) => {
+                RulePieceContent::Rule(id_gen.get(ident.content()).0)
+            }
+            SpecRulePieceContent::Range(range) => {
+                RulePieceContent::from(RulePieceContent::from(range))
+            }
+        };
+
+        let repetition = elem.repetition;
+        Self {
+            repetition: repetition,
+            content: content,
         }
     }
 }
@@ -46,7 +59,7 @@ impl<'a> FromSpec<'a> for RuleList<'a> {
         let pieces: Vec<RulePiece<'a>> = elem
             .0
             .iter()
-            .map(|piece| RulePieceContent::from_spec(piece, id_gen).into())
+            .map(|piece| RulePiece::from_spec(piece, id_gen))
             .collect();
 
         Self(pieces)
@@ -132,11 +145,69 @@ impl<'a> TryFrom<&SpecGrammar<'a>> for Grammar<'a> {
 
 #[cfg(test)]
 mod tests {
+    use crate::rules::literal::LiteralContent;
+    use crate::spec_parser::node::Node;
+    use crate::spec_parser::rule_piece::Repetition;
     use crate::spec_parser::tokens::DoubleQuote;
     use crate::spec_parser::tokens::Identifier;
     use crate::spec_parser::tokens::SingleQuote;
 
     use super::*;
+
+    #[test]
+    fn from_raw_spec() {
+        let input = r#"
+<sentence>: <subject> <space>+ "li" <space>+ <predicate>;
+<subject>: <noun_phrase>;
+<noun_phrase>: <word> | <word> <space>+ <noun_phrase>;
+<object>: <noun_phrase>;
+<space>: ' ';
+<word>: 'mi' | 'sina' | 'lape' | 'pona' | 'mute';
+<predicate>: <noun_phrase>;"#
+            .trim();
+
+        // <sentence>: 0
+        // <subject>: 1
+        // <space>: 2
+        // <predicate>: 3
+        // <noun_phrase>: 4
+        // <word>: 5
+
+        let expected_sentence = Rule {
+            name: "sentence",
+            rule: RuleOrs(vec![RuleList(vec![
+                RulePiece {
+                    content: RulePieceContent::Rule(1),
+                    repetition: Repetition::Single,
+                },
+                RulePiece {
+                    content: RulePieceContent::Rule(2),
+                    repetition: Repetition::RepeatTogether,
+                },
+                RulePiece {
+                    content: RulePieceContent::Literal(LiteralContent::Str("li").into()),
+                    repetition: Repetition::Single,
+                },
+                RulePiece {
+                    content: RulePieceContent::Rule(2),
+                    repetition: Repetition::RepeatTogether,
+                },
+                RulePiece {
+                    content: RulePieceContent::Rule(3),
+                    repetition: Repetition::Single,
+                },
+            ])]),
+        };
+
+        let (spec_grammar, _) = SpecGrammar::parse_len(input).unwrap();
+        let grammar = Grammar::try_from(&spec_grammar).unwrap();
+        let sentence_gotten = grammar.get(0).unwrap();
+
+        for i in 0..grammar.rules.len() {
+        }
+
+        assert_eq!(&expected_sentence, sentence_gotten);
+    }
 
     #[test]
     fn from_rule_piece() {
@@ -161,7 +232,7 @@ mod tests {
         ];
 
         for (input, expected) in cases {
-            let got = RulePieceContent::from_spec(&input, &mut id_gen);
+            let got = RulePiece::from_spec(&input, &mut id_gen).content;
 
             assert_eq!(expected, got);
         }

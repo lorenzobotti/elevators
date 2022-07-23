@@ -1,7 +1,6 @@
 use super::error::ParseError;
 use super::node::Node;
 use super::rule_series::RuleSeries;
-use super::rule_piece::RulePieceContent;
 use super::tokens::*;
 use crate::primitive_surrounded_by;
 use crate::utils::take_n;
@@ -46,8 +45,8 @@ impl<'a> Node<'a> for RuleOrs<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::rule_piece::RulePieceContent;
     use super::*;
-    use crate::spec_parser::rule_piece::RulePiece;
 
     #[test]
     fn rule_ors() {
