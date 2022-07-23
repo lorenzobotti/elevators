@@ -1,6 +1,7 @@
 ## input.txt
 ```
-jan Loleniso li lape```
+mi toki la jan Loleniso li lape
+```
 
 ## grammar.inspi
 ```
