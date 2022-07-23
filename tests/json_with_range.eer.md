@@ -1,6 +1,6 @@
 ## input.json
 ```json
-{ "mamma" : "MIA" , "marcello" : 45 }
+{"mamma": "MIA", "marcello": 45}
 ```
 
 ## grammar.inspi
@@ -13,7 +13,7 @@
 
 <parola>: <lettera> | <lettera> <parola>;
 <stringa>: '"' <parola> '"';
-<spazio>: ' ';
+<spazio>: ' '+ | '';
 <numero>: <cifra> | <cifra> <numero>;
 <booleano>: 'true' | 'false';
 <null>: 'null';

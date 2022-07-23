@@ -34,14 +34,18 @@ macro_rules! delimited {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
                 let starting_size = input.bytes().len();
 
-                take_start!(input, $start)?;
-                let trimmed = input.trim_start_matches($start);
+                let trimmed = input.strip_prefix($start)?;
 
-                let content = take_start!(trimmed, $matcher)?;
-                let trimmed = trimmed.trim_start_matches(content);
+                let content = match take_start!(trimmed, $matcher) {
+                    Some(c) => c,
+                    None => "",
+                };
+
+                dbg!($start, $end, content);
+                let trimmed = trimmed.strip_prefix(content)?;
 
                 take_start!(trimmed, $end)?;
-                let trimmed = trimmed.trim_start_matches($end);
+                let trimmed = trimmed.strip_prefix($end)?;
 
                 let finished_size = trimmed.bytes().len();
                 let diff = starting_size - finished_size;
