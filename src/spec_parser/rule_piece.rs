@@ -57,7 +57,7 @@ impl<'a> Node<'a> for RulePiece<'a> {
             (Repetition::Single, rest)
         };
 
-        let len = input.bytes().len() - rest.bytes().len();
+        let len = input.len() - rest.len();
 
         Ok((
             Self {

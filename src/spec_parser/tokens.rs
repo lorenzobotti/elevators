@@ -22,7 +22,7 @@ macro_rules! literal {
         impl<'a> PrimitiveNode<'a> for $type {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
                 let start = take_start!(input, $lit);
-                Some((Self(start?), start?.bytes().len()))
+                Some((Self(start?), start?.len()))
             }
         }
     };
@@ -32,7 +32,7 @@ macro_rules! delimited {
     ($type: ty, $start: expr, $end: expr, $matcher: expr) => {
         impl<'a> PrimitiveNode<'a> for $type {
             fn parse_len(input: &'a str) -> Option<(Self, usize)> {
-                let starting_size = input.bytes().len();
+                let starting_size = input.len();
 
                 let trimmed = input.strip_prefix($start)?;
 
@@ -46,7 +46,7 @@ macro_rules! delimited {
                 take_start!(trimmed, $end)?;
                 let trimmed = trimmed.strip_prefix($end)?;
 
-                let finished_size = trimmed.bytes().len();
+                let finished_size = trimmed.len();
                 let diff = starting_size - finished_size;
                 Some((Self(&input[..diff]), diff))
             }

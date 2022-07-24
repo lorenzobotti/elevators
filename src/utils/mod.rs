@@ -5,14 +5,14 @@ pub fn take_n<'a>(input: &'a str, n: usize) -> &'a str {
         chars.as_str()
     };
 
-    let bytes = input.bytes().len() - end.bytes().len();
+    let bytes = input.len() - end.len();
     &input[..bytes]
 }
 
 #[allow(dead_code)]
 pub fn match_start<'a>(input: &'a str, matcher: &str) -> Option<&'a str> {
     if input.starts_with(matcher) {
-        Some(&input[..matcher.bytes().len()])
+        Some(&input[..matcher.len()])
     } else {
         None
     }

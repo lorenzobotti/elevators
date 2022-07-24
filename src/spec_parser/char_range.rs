@@ -79,7 +79,7 @@ impl Node<'_> for CharRange {
             }
         }
 
-        let diff = input.as_bytes().len() - chars.as_str().as_bytes().len();
+        let diff = input.len() - chars.as_str().len();
         Ok((Self { from, to }, diff))
     }
 }

@@ -35,7 +35,7 @@ impl<'a> Node<'a> for Grammar<'a> {
             rules.insert(rule.name, rule);
         }
 
-        let diff = input.bytes().len() - left.bytes().len();
+        let diff = input.len() - left.len();
         match rules.len() {
             0 => unreachable!(),
             _ => Ok((

@@ -52,7 +52,7 @@ impl<'a> Node<'a> for RuleLine<'a> {
         }
 
         let rest = rest.trim_start_matches(SEMICOLUMN);
-        let diff = input.bytes().len() - rest.bytes().len();
+        let diff = input.len() - rest.len();
         Ok((
             Self {
                 name: name.content(),

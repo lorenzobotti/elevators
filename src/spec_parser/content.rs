@@ -14,7 +14,7 @@ macro_rules! derive_content {
     ($type: ty) => {
         impl<'a> Content<'a> for $type {
             fn content(&self) -> &'a str {
-                let trimmed = &self.0[1..(self.0.bytes().len() - 1)];
+                let trimmed = &self.0[1..(self.0.len() - 1)];
                 trimmed
             }
         }

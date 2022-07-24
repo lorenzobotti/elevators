@@ -23,7 +23,7 @@ impl<'a> Node<'a> for RuleSeries<'a> {
                 }
             };
 
-            assert!(inp.bytes().len() < trimmed.bytes().len());
+            assert!(inp.len() < trimmed.len());
 
             pieces.push(piece);
 
@@ -33,7 +33,7 @@ impl<'a> Node<'a> for RuleSeries<'a> {
             assert!(trimmed_before != trimmed);
         }
 
-        let diff = input.bytes().len() - trimmed.bytes().len();
+        let diff = input.len() - trimmed.len();
         match diff {
             0 => Err(ParseError::UnexpectedWhile {
                 parsing: "rule series",

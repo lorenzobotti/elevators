@@ -19,7 +19,7 @@ impl<'a> Node<'a> for RuleOrs<'a> {
             let (_, left) = match primitive_surrounded_by!(Separator, Space, trimmed) {
                 Some((sep, left)) => (sep, left),
                 None => {
-                    return Ok((Self(series), input.bytes().len() - trimmed.bytes().len()));
+                    return Ok((Self(series), input.len() - trimmed.len()));
                 }
             };
 

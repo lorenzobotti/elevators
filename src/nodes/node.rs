@@ -90,7 +90,7 @@ impl<'g, 'i> Node<'g, 'i> {
             nodes.push(parsed);
         }
 
-        let diff = input.bytes().len() - rest.bytes().len();
+        let diff = input.len() - rest.len();
 
         Ok((
             Self {
@@ -129,7 +129,7 @@ impl<'g, 'i> Node<'g, 'i> {
                         name: Some(name),
                         content: NodeContent::Literal(matched),
                     },
-                    matched.bytes().len(),
+                    matched.len(),
                 ))
             }
             (RulePieceContent::Rule(ruleref), repetition) => {
@@ -152,7 +152,7 @@ impl<'g, 'i> Node<'g, 'i> {
                     }
                 }
 
-                let len = input.bytes().len() - rest.bytes().len();
+                let len = input.len() - rest.len();
 
                 match repetition {
                     Repetition::Single => unreachable!(),
@@ -192,7 +192,7 @@ impl<'g, 'i> Node<'g, 'i> {
                         got: take_n(input, 20),
                     })?;
 
-                let len = beginning.bytes().len();
+                let len = beginning.len();
                 let content = NodeContent::Literal(beginning);
 
                 Ok((
